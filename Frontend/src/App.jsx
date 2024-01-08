@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from "./components/LoginPage"
-import HomePage from './components/HomePage';
+import DashboardPage from './components/DashboardPage';
+import { RecoilRoot } from 'recoil';
+import Navbar from './components/Navbar';
 
 
 
@@ -8,15 +10,18 @@ function App() {
 
   return (
     <>
-
-    <Router>
-      <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path='/login' element={<LoginPage />} />
-      </Routes>
-    </Router>
+    <RecoilRoot>
+        <Router>
+          <Navbar/>
+          <Routes>
+            <Route path="/" element={<DashboardPage />} />
+            <Route path='/login' element={<LoginPage />} />
+          </Routes>
+        </Router>
+    </RecoilRoot>
+    
     </>
   )
 }
 
-export default App
+export default App;
