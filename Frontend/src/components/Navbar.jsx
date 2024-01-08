@@ -1,8 +1,17 @@
 
-import { Link } from 'react-router-dom';
+import { Link,useLocation } from 'react-router-dom';
+import {useRecoilValue} from 'recoil';
+import {isAuthenticatedState} from '../atoms/authState';
+
 import logo from '../assets/logo.png';
 
 export default function Navbar() {
+    const isAuthenticated = useRecoilValue(isAuthenticatedState);
+    const location = useLocation();
+
+    if(!isAuthenticated || location.pathname === '/login'){
+        return null;
+    }
     return (
         <nav className="flex items-center justify-between p-4 bg-blue-500">
             <div className="flex items-center">
