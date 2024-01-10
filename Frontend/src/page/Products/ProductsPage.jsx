@@ -12,6 +12,33 @@ function ProductsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
+    //delete Button
+    const handleDelete = async (productId) => {
+        alert(productId);
+        const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+        if (confirmDelete) {
+            try {
+                // Delete the product from the API
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${productId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                console.log(response)
+                if (response.ok) {
+                    // Filter out the deleted product from the local state
+                    const updatedProducts = products.filter((product) => product.id !== productId);
+                    setProducts(updatedProducts); // Update the state with the new products array
+                } else {
+                    throw new Error('Failed to delete product');
+                }
+            } catch (error) {
+                console.error('Error deleting product:', error);
+            }
+        }
+    };
+
     useEffect(() => {
         async function fetchProducts() {
             try {
@@ -91,6 +118,8 @@ function ProductsPage() {
         ));
     };
 
+    
+
     return (
         <div>
             <Navbar />
@@ -137,13 +166,13 @@ function ProductsPage() {
                                             <FaRegEdit />
                                         </Link>
                                         <button
-                                            // onClick={() => handleDelete(product.id)}
+                                            onClick={() => handleDelete(product.id)}
                                             className="text-red-400"
                                             title='Delete'
                                         >
                                             <IoTrashBin />
                                         </button>
-                                        <Link to={`/customers/view/${product.id}`} className="" title='View'>
+                                        <Link to={`/products/view/${product.id}`} className="" title='View'>
                                             <CiViewBoard />
                                         </Link>
                                     </td>

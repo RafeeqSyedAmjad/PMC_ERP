@@ -16,7 +16,31 @@ function CustomersPage() {
     const [currentPage,setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
-    
+    // //delete Button
+    // const handleDelete = async (customerId) => {
+    //     const confirmDelete = window.confirm('Are you sure you want to delete this product?');
+    //     if (confirmDelete) {
+    //         try {
+    //             // Delete the product from the API
+    //             const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${customerId}`, {
+    //                 method: 'DELETE',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //             });
+
+    //             if (response.ok) {
+    //                 // Filter out the deleted product from the local state
+    //                 const updatedProducts = products.filter((product) => product.id !== productId);
+    //                 setProducts(updatedProducts); // Update the state with the new products array
+    //             } else {
+    //                 throw new Error('Failed to delete product');
+    //             }
+    //         } catch (error) {
+    //             console.error('Error deleting product:', error);
+    //         }
+    //     }
+    // };
 
     useEffect(() => {
         async function fetchCustomers() {
@@ -36,10 +60,7 @@ function CustomersPage() {
         fetchCustomers();
     }, []);
 
-    // const handleDelete = async (id) => {
-    //     // Implement delete functionality using the ID
-    //     // Send a DELETE request to the API with the specific customer ID
-    // };
+    
 
     const filteredCustomers = customers.filter((customer)=>{
         // Filter based on the search term for customer ID, name , email or phone
