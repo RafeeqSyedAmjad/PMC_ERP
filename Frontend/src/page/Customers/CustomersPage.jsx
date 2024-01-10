@@ -14,7 +14,7 @@ function CustomersPage() {
         ascending:true,
     })
     const [currentPage,setCurrentPage] = useState(1);
-    const [itemsPerPage,setItemsPerPage] = useState(10);
+    const [itemsPerPage] = useState(10);
 
     
 
@@ -111,40 +111,40 @@ function CustomersPage() {
     return (
         <div>
             <Navbar/>
-            <div className="container mx-auto px-4 py-8 overflow-x-auto">
+            <div className="container px-4 py-8 mx-auto overflow-x-auto">
                 <div className='mb-4'>
                     <input type = "text" placeholder = "Search by ID, Company Name, Email, or Mobile"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className='border border-gray-300 rounded-md p-2 w-full'
+                        className='w-full p-2 border border-gray-300 rounded-md'
                     />
                 </div>
                 <table className="w-full table-auto">
                     <thead>
-                        <tr className="bg-gray-200 text-gray-700 uppercase">
-                            <th className="py-3 px-6 text-left" onClick={() => handleSort('id')}>ID {sortOrder.column === 'id' && (sortOrder.ascending ? '↑' : '↓')}</th>
-                            <th className="py-3 px-6 text-left" onClick={() => handleSort('customerName')}>
+                        <tr className="text-gray-700 uppercase bg-gray-200">
+                            <th className="px-6 py-3 text-left" onClick={() => handleSort('id')}>ID {sortOrder.column === 'id' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                            <th className="px-6 py-3 text-left" onClick={() => handleSort('customerName')}>
                                 Company Name{' '}
                                 {sortOrder.column === 'customerName' && (sortOrder.ascending ? '↑' : '↓')}
                             </th>
-                            <th className="py-3 px-6 text-left" onClick={() => handleSort('customerEmail')}> Email {sortOrder.column === 'customerEmail' && (sortOrder.ascending ? '↑' : '↓')}</th>
-                            <th className="py-3 px-6 text-left" onClick={() => handleSort('customerPhone')}>Mobile {sortOrder.column === 'customerPhone' && (sortOrder.ascending ? '↑' : '↓')}</th>
-                            <th className="py-3 px-6 text-center">Actions</th>
+                            <th className="px-6 py-3 text-left" onClick={() => handleSort('customerEmail')}> Email {sortOrder.column === 'customerEmail' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                            <th className="px-6 py-3 text-left" onClick={() => handleSort('customerPhone')}>Mobile {sortOrder.column === 'customerPhone' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                            <th className="px-6 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="text-gray-600">
                         {currentItems.map((customer) => (
                             <tr key={customer.id} className="border-b border-gray-200 hover:bg-gray-100">
-                                <td className="py-3 px-6">{customer.id}</td>
-                                <td className="py-3 px-6">{customer.customerName}</td>
-                                <td className="py-3 px-6">{customer.customerEmail}</td>
-                                <td className="py-3 px-6">{customer.customerPhone}</td>
-                                <td className="py-3 px-6 flex flex-col items-center justify-center space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
+                                <td className="px-6 py-3">{customer.id}</td>
+                                <td className="px-6 py-3">{customer.customerName}</td>
+                                <td className="px-6 py-3">{customer.customerEmail}</td>
+                                <td className="px-6 py-3">{customer.customerPhone}</td>
+                                <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
                                     <Link to={`/customers/edit/${customer.id}`} className="text-blue-400" title='Edit Details'>
                                         <FaRegEdit />
                                     </Link>
                                     <button
-                                        onClick={() => handleDelete(customer.id)}
+                                        // onClick={() => handleDelete(customer.id)}
                                         className="text-red-400"
                                         title='Delete'
                                     >
@@ -162,7 +162,7 @@ function CustomersPage() {
                     </tbody>
                 </table>
             </div>
-            <div className = "flex justify-center items-center my-4 space-x-2">
+            <div className = "flex items-center justify-center my-4 space-x-2">
                 <button onClick={prevPage}
                     disabled = {currentPage === 1}
                     className={`px-3 py-1 rounded-full 
@@ -181,7 +181,6 @@ function CustomersPage() {
                 >
                     Next
                 </button>
-
             </div>
         </div>
     );
