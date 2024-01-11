@@ -16,31 +16,31 @@ function CustomersPage() {
     const [currentPage,setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
-    // //delete Button
-    // const handleDelete = async (customerId) => {
-    //     const confirmDelete = window.confirm('Are you sure you want to delete this product?');
-    //     if (confirmDelete) {
-    //         try {
-    //             // Delete the product from the API
-    //             const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${customerId}`, {
-    //                 method: 'DELETE',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                 },
-    //             });
+    //delete Button
+    const handleDelete = async (customerId) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this customer?');
+        if (confirmDelete) {
+            try {
+                // Delete the product from the API
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
 
-    //             if (response.ok) {
-    //                 // Filter out the deleted product from the local state
-    //                 const updatedProducts = products.filter((product) => product.id !== productId);
-    //                 setProducts(updatedProducts); // Update the state with the new products array
-    //             } else {
-    //                 throw new Error('Failed to delete product');
-    //             }
-    //         } catch (error) {
-    //             console.error('Error deleting product:', error);
-    //         }
-    //     }
-    // };
+                if (response.ok) {
+                    // Filter out the deleted product from the local state
+                    const updatedCustomers = customers.filter((product) => product.id !== customerId);
+                    setCustomers(updatedCustomers); // Update the state with the new products array
+                } else {
+                    throw new Error('Failed to delete customer');
+                }
+            } catch (error) {
+                console.error('Error deleting customer:', error);
+            }
+        }
+    };
 
     useEffect(() => {
         async function fetchCustomers() {
@@ -165,7 +165,7 @@ function CustomersPage() {
                                         <FaRegEdit />
                                     </Link>
                                     <button
-                                        // onClick={() => handleDelete(customer.id)}
+                                        onClick={() => handleDelete(customer.id)}
                                         className="text-red-400"
                                         title='Delete'
                                     >

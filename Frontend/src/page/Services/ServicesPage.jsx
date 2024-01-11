@@ -11,6 +11,30 @@ function ServicesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
+  const handleDelete = async(serviceId) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this service?');
+    if (confirmDelete) {
+      try {
+        // Delete the product from the API
+        const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/services/${serviceId}/`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const updatedServices = services.filter((service) => service.id !== serviceId);
+          setServices(updatedServices); 
+        } else {
+          throw new Error('Failed to delete service');
+        }
+      } catch (error) {
+        console.error('Error deleting service:', error);
+      }
+    }
+  };
+
   useEffect(() => {
     async function fetchServices() {
       try {
@@ -113,7 +137,7 @@ function ServicesPage() {
                       <FaRegEdit />
                     </Link>
                     <button
-                      // onClick={() => handleDelete(service.id)}
+                      onClick={() => handleDelete(service.id)}
                       className="text-red-400"
                       title='Delete'
                     >

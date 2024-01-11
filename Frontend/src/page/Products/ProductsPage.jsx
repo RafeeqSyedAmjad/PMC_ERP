@@ -14,7 +14,6 @@ function ProductsPage() {
 
     //delete Button
     const handleDelete = async (productId) => {
-        alert(productId);
         const confirmDelete = window.confirm('Are you sure you want to delete this product?');
         if (confirmDelete) {
             try {
@@ -162,7 +161,7 @@ function ProductsPage() {
                                     <td className="px-6 py-3">{product.brand}</td>
                                     <td className="px-6 py-3">{product.quantity}</td>
                                     <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
-                                        <Link to={`/products/edit/${product.id}`} className="text-blue-400" title='Edit Details'>
+                                        <Link to={`/products/edit/${product.id}/`} className="text-blue-400" title='Edit Details'>
                                             <FaRegEdit />
                                         </Link>
                                         <button
