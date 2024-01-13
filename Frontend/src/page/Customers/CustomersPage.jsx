@@ -161,7 +161,7 @@ function CustomersPage() {
                                 <td className="px-6 py-3">{customer.customerEmail}</td>
                                 <td className="px-6 py-3">{customer.customerPhone}</td>
                                 <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
-                                    <Link to={`/customers/edit/${customer.id}`} className="text-blue-400" title='Edit Details'>
+                                    <Link to={`/customers/edit/${customer.id}/`} className="text-blue-400" title='Edit Details'>
                                         <FaRegEdit />
                                     </Link>
                                     <button

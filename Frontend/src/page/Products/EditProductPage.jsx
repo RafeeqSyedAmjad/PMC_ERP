@@ -81,7 +81,7 @@ function EditProductPage() {
   return (
     <div>
       <Navbar />
-      <div className="container max-w-md p-6 mx-auto mt-8 bg-white rounded-md shadow-md">
+      <div className="container max-w-md p-6 mx-auto mt-8 bg-white rounded-md shadow-xl">
         <h1 className="mb-6 text-3xl font-bold text-center text-blue-500">Edit Product</h1>
         <form>
           <div className="mb-4">

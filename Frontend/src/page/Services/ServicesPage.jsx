@@ -133,7 +133,7 @@ function ServicesPage() {
                   <td className="px-6 py-3">{service.price}</td>
                   {/* Implement Actions column here */}
                   <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
-                    <Link to={`/services/edit/${service.id}`} className="text-blue-400" title='Edit Details'>
+                    <Link to={`/services/edit/${service.id}/`} className="text-blue-400" title='Edit Details'>
                       <FaRegEdit />
                     </Link>
                     <button

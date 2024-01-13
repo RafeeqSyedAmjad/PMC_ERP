@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import { CustomersPage, DashboardPage, EditCustomerPage, EditProductPage, LoginPage, ProductsPage, QuotationsPage, ServicesPage } from "../page/PageExport";
+import { CustomersPage, DashboardPage, EditCustomerPage, EditProductPage, EditServicePage, LoginPage, ProductsPage, QuotationsPage, ServicesPage } from "../page/PageExport";
 
 
 
@@ -16,6 +16,7 @@ export const AppRoutes = () => {
             <Route path='/products' element={<ProductsPage />} />
             <Route path= '/products/edit/:productId' element = {<EditProductPage/>} />
             <Route path='/services' element={<ServicesPage />} />
+            <Route path = 'services/edit/:serviceId' element = {<EditServicePage/>}/>
             <Route path='/quotations' element={<QuotationsPage />} />
           </Routes>
     )
