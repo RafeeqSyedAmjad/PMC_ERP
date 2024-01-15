@@ -63,17 +63,77 @@ function QuotationsPage() {
     };
 
     const renderPageNumbers = () => {
-        return Array.from({ length: totalPages }, (_, index) => (
-            <button
-                key={index + 1}
-                onClick={() => goToPage(index + 1)}
-                className={`px-3 py-1 mx-1 rounded-full 
-                    ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}
-                    hover:bg-blue-600 hover:text-white focus:outline-none focus:bg-blue-600 focus:text-white`}
-            >
-                {index + 1}
-            </button>
-        ));
+        const isMobile = window.innerWidth <= 640; // Adjust the breakpoint as needed
+
+        if (isMobile) {
+            return (
+                <div className="flex items-center justify-center my-4 space-x-2">
+                    <button
+                        onClick={prevPage}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                    >
+                        Prev
+                    </button>
+                    <button
+                        onClick={() => goToPage(1)}
+                        className={`px-3 py-1 rounded-full 
+                            ${currentPage === 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}
+                            hover:bg-blue-600 hover:text-white focus:outline-none focus:bg-blue-600 focus:text-white`}
+                    >
+                        1
+                    </button>
+                    {totalPages > 1 && (
+                        <button
+                            onClick={() => goToPage(2)}
+                            className={`px-3 py-1 rounded-full 
+                                ${currentPage === 2 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}
+                                hover:bg-blue-600 hover:text-white focus:outline-none focus:bg-blue-600 focus:text-white`}
+                        >
+                            2
+                        </button>
+                    )}
+                    <button
+                        onClick={nextPage}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                    >
+                        Next
+                    </button>
+                </div>
+            );
+        }
+
+        // Render all page numbers for larger screens
+        return (
+            <div className="flex items-center justify-center my-4 space-x-2">
+                <button
+                    onClick={prevPage}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                >
+                    Prev
+                </button>
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                        key={index + 1}
+                        onClick={() => goToPage(index + 1)}
+                        className={`px-3 py-1 rounded-full 
+                            ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}
+                            hover:bg-blue-600 hover:text-white focus:outline-none focus:bg-blue-600 focus:text-white`}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+                <button
+                    onClick={nextPage}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+                >
+                    Next
+                </button>
+            </div>
+        );
     };
 
     return (
@@ -132,13 +192,7 @@ function QuotationsPage() {
                 </div>
                 
                 <div className="flex items-center justify-center my-4 space-x-2">
-                    <button onClick={prevPage} disabled={currentPage === 1}>
-                        Prev
-                    </button>
                     {renderPageNumbers()}
-                    <button onClick={nextPage} disabled={currentPage === totalPages}>
-                        Next
-                    </button>
                 </div>
             </div>
         </div>

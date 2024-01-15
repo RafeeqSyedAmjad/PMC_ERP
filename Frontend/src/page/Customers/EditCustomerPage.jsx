@@ -25,7 +25,12 @@ function EditCustomerPage() {
                 const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`);
                 if (response.ok) {
                     const data = await response.json();
-                    setCustomerDetails(data);
+                    // Set an initial value for customerType only if it is null or empty
+                    setCustomerDetails((prevDetails) => ({
+                        ...prevDetails,
+                        ...data,
+                        customerType: prevDetails.customerType || 'retail', // or any default value
+                    }));
                 } else {
                     throw new Error('Failed to fetch customer details');
                 }
@@ -45,9 +50,11 @@ function EditCustomerPage() {
         }));
     };
 
+    
+
     const handleUpdateCustomer = async () => {
         try {
-            const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`, {
+            const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`,{           
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -56,7 +63,8 @@ function EditCustomerPage() {
             });
 
             if (response.ok) {
-                console.log('Customer updated successfully!');
+                const errorMessage = await response.text();
+                console.error('Failed to update customer:', errorMessage);
                 // Redirect to customer_list.html or handle navigation as needed
             } else {
                 throw new Error('Failed to update customer');
