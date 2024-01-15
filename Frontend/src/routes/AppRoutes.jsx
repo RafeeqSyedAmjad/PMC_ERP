@@ -1,11 +1,18 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { CustomersPage, DashboardPage, EditCustomerPage, EditProductPage, EditServicePage, LoginPage, ProductsPage, QuotationsPage, ServicesPage, ViewCustomerPage, ViewProductPage, ViewServicePage } from "../page/PageExport";
+import { useEffect } from "react";
 
 
 
 
 
 export const AppRoutes = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Set the document title based on the current route
+    document.title = `PMC - ${location.pathname.replace('/', '')}`;
+  }, [location.pathname]);
     return (
         
           <Routes>
@@ -21,6 +28,7 @@ export const AppRoutes = () => {
             <Route path = 'services/edit/:serviceId' element = {<EditServicePage/>}/>
             <Route path="services/view/:serviceId" element={<ViewServicePage/>}/>
             <Route path='/quotations' element={<QuotationsPage />} />
+            {/* <Route path = '/quotations/preview/:quotationId' element={<PreviewQuotationPage/>}/> */}
           </Routes>
     )
 }
