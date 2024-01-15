@@ -171,7 +171,7 @@ function ProductsPage() {
                                         >
                                             <IoTrashBin />
                                         </button>
-                                        <Link to={`/products/view/${product.id}`} className="" title='View'>
+                                        <Link to={`/products/view/${product.id}/`} className="" title='View'>
                                             <CiViewBoard />
                                         </Link>
                                     </td>

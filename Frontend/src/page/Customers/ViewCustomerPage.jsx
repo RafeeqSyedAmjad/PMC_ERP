@@ -49,7 +49,7 @@ function ViewCustomerPage() {
         <div>
             <Navbar />
             <div className="container p-6 mx-auto mt-8 bg-white rounded-md shadow-xl">
-                <h1 className="mb-6 text-3xl font-bold text-center text-blue-500">View Customer</h1>
+                <h1 className="mb-6 text-3xl font-bold text-center text-blue-500">Customer Details</h1>
                 <form>
                     {/* Customer Details */}
                     <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">

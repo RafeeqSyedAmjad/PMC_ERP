@@ -143,7 +143,7 @@ function ServicesPage() {
                     >
                       <IoTrashBin />
                     </button>
-                    <Link to={`/services/view/${service.id}`} className="" title='View'>
+                    <Link to={`/services/view/${service.id}/`} className="" title='View'>
                       <CiViewBoard />
                     </Link>
                   </td>

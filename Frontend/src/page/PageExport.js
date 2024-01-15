@@ -7,6 +7,8 @@ import QuotationsPage from "./Quotations/QuotationsPage";
 import EditCustomerPage from "./Customers/EditCustomerPage";
 import ViewCustomerPage from "./Customers/ViewCustomerPage";
 import EditProductPage from "./Products/EditProductPage";
+import ViewProductPage from "./Products/ViewProductPage";
 import EditServicePage from "./Services/EditServicePage";
+import ViewServicePage from "./Services/ViewServicePage";
 
-export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage,ViewCustomerPage  };
+export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage, ViewCustomerPage, ViewProductPage, ViewServicePage };
