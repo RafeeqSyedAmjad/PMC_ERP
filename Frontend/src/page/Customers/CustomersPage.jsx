@@ -133,6 +133,11 @@ function CustomersPage() {
         <div>
             <Navbar/>
             <div className="container px-4 py-8 mx-auto overflow-x-auto">
+                <div className="flex justify-end mb-4">
+                    <Link to="/customers/add" className="px-4 py-2 text-white bg-green-500 rounded-md">
+                        Add Customer
+                    </Link>
+                </div>
                 <div className='mb-4'>
                     <input type = "text" placeholder = "Search by ID, Company Name, Email, or Mobile"
                         value={searchTerm}
@@ -140,6 +145,7 @@ function CustomersPage() {
                         className='w-full p-2 border border-gray-300 rounded-md'
                     />
                 </div>
+                
                 <table className="w-full table-auto">
                     <thead>
                         <tr className="text-gray-700 uppercase bg-gray-200">

@@ -10,6 +10,8 @@ function QuotationsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
+    
+
     useEffect(() => {
         async function fetchQuotations() {
             try {
@@ -28,6 +30,8 @@ function QuotationsPage() {
         fetchQuotations();
     }, []);
 
+    
+
     const applyFilters = () => {
         let filteredQuotations = quotations.filter((quotation) => {
             const searchTermLowerCase = searchTerm.toLowerCase();
@@ -41,6 +45,10 @@ function QuotationsPage() {
         });
         return filteredQuotations;
     };
+
+    function previewQuotation(quotation_id) {
+        window.open(`quote-page.html?id=${quotation_id}`, '_blank');
+    }
 
     const filteredQuotations = applyFilters();
 
@@ -149,6 +157,11 @@ function QuotationsPage() {
                         className='w-full p-2 border border-gray-300 rounded-md md:w-1/2 lg:w-1/3'
                     />
                 </div>
+                <div className='flex justify-end mb-4'>
+                    <Link to={`/quotations/add`} className="px-4 py-2 text-white bg-green-500 rounded-md">
+                        Add Quotation
+                    </Link>
+                </div>
                 <div className='overflow-x-auto'>
                     <table className="w-full table-auto">
                         <thead>
@@ -171,12 +184,15 @@ function QuotationsPage() {
                                     <td className="px-6 py-3">{quotation.contactNo}</td>
                                     {/* Implement Actions column here */}
                                     <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
-                                        <Link to={`/quotations/edit/${quotation.id}`} className="text-blue-400" title='Edit Details'>
+                                        <Link to={`/quotations/edit/${quotation.id}/`} className="text-blue-400" title='Edit Details'>
                                             <FaRegEdit />
                                         </Link>
-                                        <Link to={`/customers/view/${quotation.id}`} className="" title='View'>
+                                        <button onClick={() => {
+                                            // console.log("Quotation ID:", quotation.sales_quotation_id);
+                                            previewQuotation(quotation.quotation_id);
+                                        }} className="" title='Preview'>
                                             <CiViewBoard />
-                                        </Link>
+                                        </button>
                                         <button
                                             className="text-green-400"
                                             title='Approve'

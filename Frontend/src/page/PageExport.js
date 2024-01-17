@@ -10,5 +10,7 @@ import EditProductPage from "./Products/EditProductPage";
 import ViewProductPage from "./Products/ViewProductPage";
 import EditServicePage from "./Services/EditServicePage";
 import ViewServicePage from "./Services/ViewServicePage";
+import AddQuotationPage from "./Quotations/AddQuotationPage";
 
-export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage, ViewCustomerPage, ViewProductPage, ViewServicePage };
+
+export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddQuotationPage };
