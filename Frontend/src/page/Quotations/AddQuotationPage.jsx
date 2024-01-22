@@ -9,6 +9,8 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import header from '../../assets/header.png';
+import footer from '../../assets/footer.jpg';
 
 function AddQuotationPage() {
     // This states are for Customers
@@ -37,7 +39,15 @@ function AddQuotationPage() {
     // const [grandTotal, setGrandTotal] = useState(0);
     const [grandTotalPriceWithVat, setGrandTotalPriceWithVat] = useState(0);
     const [grandTotalVatAmount, setGrandTotalVatAmount] = useState(0);
-    const [additionalDiscount, setAdditionalDiscount] = useState();
+    const [additionalDiscount, setAdditionalDiscount] = useState(0);
+    const [AfterAdditionalDiscount,setAfterAdditonalDiscount] = useState(0);
+
+    //Preview
+    const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);
+
+    //Send and Document Type
+    const [isDocumentModalOpen, setDocumentModalOpen] = useState(false);
+    const [selectedDocumentType, setSelectedDocumentType] = useState(null);
 
     useEffect(() => {
         // Fetch services from the API
@@ -168,7 +178,7 @@ function AddQuotationPage() {
     const calculateTotalDiscount = () => {
         return tableData.reduce((total, product) => total + (parseFloat(product.discount) || 0), 0);
     };
-    
+
 
     const calculateTotalDiscountAmount = () => {
         const totalDiscountPercentage = calculateTotalDiscount();
@@ -193,6 +203,35 @@ function AddQuotationPage() {
 
 
     // Services 
+
+    const updateServiceTotals = () => {
+
+        console.log('is tihis running')
+        let totalServicePrice = 0;
+        let totalDiscountPercentage = 0;
+
+        serviceData.forEach((service) => {
+            const discount = parseFloat(service.discount) || 0;
+            const total = parseFloat(service.total) || 0;
+
+            totalDiscountPercentage += discount;
+            totalServicePrice += total;
+        });
+
+        // Calculate the total discount amount as a percentage of the total service price
+        const totalDiscountAmount = (totalDiscountPercentage / 100) * totalServicePrice;
+
+        const vatOnService = 0.15 * totalServicePrice;
+        const totalServicePriceWithVat = totalServicePrice + vatOnService;
+
+        // Update state variables for service-related totals
+        setServiceTotalPrice(totalServicePrice);
+        setServiceTotalDiscount(totalDiscountAmount);
+        setServiceVatAmount(vatOnService);
+        setServicePriceWithVat(totalServicePriceWithVat);
+    };
+
+    
     const handleAddServiceClick = () => {
         setServiceData([...serviceData, { serviceType: '', description: '', time: '', discount: '', total: '' }]);
         setShowServiceTable(true);
@@ -218,33 +257,10 @@ function AddQuotationPage() {
         setServiceData(updatedServiceData);
 
         // Update service-related totals
-        // updateServiceTotals();
+        updateServiceTotals();
     };
 
-    const updateServiceTotals = () => {
-        let totalServicePrice = 0;
-        let totalDiscountPercentage = 0;
-
-        serviceData.forEach((service) => {
-            const discount = parseFloat(service.discount) || 0;
-            const total = parseFloat(service.total) || 0;
-
-            totalDiscountPercentage += discount;
-            totalServicePrice += total;
-        });
-
-        // Calculate the total discount amount as a percentage of the total service price
-        const totalDiscountAmount = (totalDiscountPercentage / 100) * totalServicePrice;
-
-        const vatOnService = 0.15 * totalServicePrice;
-        const totalServicePriceWithVat = totalServicePrice + vatOnService;
-
-        // Update state variables for service-related totals
-        setServiceTotalPrice(totalServicePrice);
-        setServiceTotalDiscount(totalDiscountAmount);
-        setServiceVatAmount(vatOnService);
-        setServicePriceWithVat(totalServicePriceWithVat);
-    };
+    
 
     const handleServiceDiscountChange = (index, discount) => {
         const updatedServiceData = [...serviceData];
@@ -278,33 +294,111 @@ function AddQuotationPage() {
         const updatedServiceData = [...serviceData];
         updatedServiceData.splice(index, 1);
         setServiceData(updatedServiceData);
+
+        // Call the updateServiceTotals function immediately after setting the state
+        updateServiceTotals();
     };
 
 
     // Get total
     const updateQuotationTotals = () => {
         const totalPriceWithoutVat = calculateTotalPriceWithoutVat();
-        const totalDiscount = calculateTotalDiscount();
 
-        const vatOnService = serviceVatAmount; // Assuming serviceVatAmount is already calculated
-        const totalServicePriceWithVat = servicePriceWithVat; // Assuming servicePriceWithVat is already calculated
+        // Calculate GrandTotal without VAT
+        const GrandTotal = totalPriceWithoutVat + serviceTotalPrice;
+        setGrandTotalPrice(GrandTotal);
 
-        setGrandTotalPrice(totalPriceWithoutVat + serviceTotalPrice);
-        setGrandTotalVatAmount(vatOnService + vat - additionalDiscount);
-        setGrandTotalPriceWithVat(totalServicePriceWithVat + totalPriceWithVat - additionalDiscount);
+        // Calculate total discount amount as a percentage of the GrandTotal without VAT
+        const discountAmount = (additionalDiscount / 100) * GrandTotal;
+
+        // Calculate the GrandTotal after applying the additional discount
+        const AfterAdditionalDiscountAmt = GrandTotal - discountAmount;
+
+        // Calculate VAT and GrandTotal with VAT
+        const vatAmount = 0.15 * AfterAdditionalDiscountAmt;
+        const totalWithVat = AfterAdditionalDiscountAmt + vatAmount;
+
+        // Update state values
+        setAfterAdditonalDiscount(discountAmount);
+        setGrandTotalVatAmount(vatAmount);
+        setGrandTotalPriceWithVat(totalWithVat);
     };
+
 
 
     const handleAdditionalDiscountChange = (value) => {
         const discountPercentage = parseFloat(value) || 0;
 
-        // Update additional discount
-        setAdditionalDiscount(discountPercentage);
+        // Update additional discount and trigger calculations
+        setAdditionalDiscount(discountPercentage, () => {
+            updateQuotationTotals();
+        });
+    };
 
-    
+
+
+    // UseEffect to trigger calculations after updating additional discount
+    useEffect(() => {
         // Update grand total when additional discount changes
         updateQuotationTotals();
+    }, [additionalDiscount]);
+
+
+    // Use a callback function to ensure that the state is updated before calculations
+    const setAdditionalDiscounts = (value, callback) => {
+        setAdditionalDiscountValue(value, callback);
     };
+
+    const setAdditionalDiscountValue = (value, callback) => {
+        setAdditionalDiscounts(value);
+        if (callback && typeof callback === 'function') {
+            callback();
+        }
+    };
+
+
+    // PREVIEW
+
+    // function to handle modal vissibility
+    const openPreviewModal = () => {
+        setPreviewModalOpen(true);
+    };
+
+    const closePreviewModal = () => {
+        setPreviewModalOpen(false)
+    }
+
+
+    //Document Type and Send
+    
+    // Function to open the document modal
+    const openDocumentModal = () => {
+        setDocumentModalOpen(true);
+    };
+
+    // Function to close the document modal
+    const closeDocumentModal = () => {
+        setDocumentModalOpen(false);
+    };
+
+    // Function to handle document type selection
+    const handleDocumentTypeSelect = (type) => {
+        setSelectedDocumentType(type);
+    };
+
+    // Function to send the email based on the selected document type
+    const sendEmail = () => {
+        // Add your logic for sending email based on selectedDocumentType
+        // ...
+        
+
+        // Show a Windows popup with the desired message
+        window.alert("Quotation created successfully");
+        // Close the modal after sending email
+        closeDocumentModal();
+    };
+
+
 
     return (
         <div>
@@ -410,8 +504,8 @@ function AddQuotationPage() {
 
                     <div className="col-span-2 mt-12 table-wrap">
                         <div className="table-responsive">
-                            <Table className="bg-gray-100 text-black border-gray-300">
-                                {/* <TableCaption className="bg-blue-500 text-white">Your Products</TableCaption> */}
+                            <Table className="text-black bg-gray-100 border-gray-300">
+                                {/* <TableCaption className="text-white bg-blue-500">Your Products</TableCaption> */}
                                 <TableHeader className="bg-gray-200">
                                     <TableRow >
                                         <TableHead className='font-bold text-[#374151]'>Product Name</TableHead>
@@ -435,21 +529,21 @@ function AddQuotationPage() {
                                                 <input
                                                     type="number"
                                                     inputMode="numeric"
-                                                    
+
                                                     value={product.quantity || ''}
                                                     onChange={(e) => handleQuantityChange(index, e.target.value)}
-                                                    className="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
-                                                    
+                                                    className="w-16 px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
+
                                                 />
                                             </TableCell>
                                             <TableCell>
                                                 <input
                                                     type="number"
                                                     inputMode="numeric"
-                                    
+
                                                     value={product.discount || ''}
                                                     onChange={(e) => handleDiscountChange(index, e.target.value)}
-                                                    className="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
+                                                    className="w-16 px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                                                     style={{ appearance: 'textfield' }}
                                                 />
                                             </TableCell>
@@ -491,7 +585,7 @@ function AddQuotationPage() {
 
 
                 <div className="mt-12">
-                    <h2 className="mb-2  text-lg font-semibold">Add Service</h2>
+                    <h2 className="mb-2 text-lg font-semibold">Add Service</h2>
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
                         onClick={handleAddServiceClick}
@@ -504,7 +598,7 @@ function AddQuotationPage() {
                     {showServiceTable && (
                         <div className="col-span-2 mt-8 table-wrap">
                             <div className="table-responsive">
-                                <Table className="bg-gray-100 text-black border-gray-300">
+                                <Table className="text-black bg-gray-100 border-gray-300">
                                     <TableHeader className="bg-gray-200">
                                         <TableRow>
                                             <TableHead className='font-bold text-[#374151]'>Service Type</TableHead>
@@ -522,7 +616,7 @@ function AddQuotationPage() {
                                                     <select
                                                         value={service.serviceType}
                                                         onChange={(e) => handleServiceTypeChange(index, e.target.value)}
-                                                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
+                                                        className="w-full px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                                                     >
                                                         {serviceOptions.map((option, idx) => (
                                                             <option key={idx} value={option}>
@@ -537,7 +631,7 @@ function AddQuotationPage() {
                                                         value={service.description}
                                                         onChange={(e) => handleDescriptionChange(index, e.target.value)}
                                                         placeholder="Enter description"
-                                                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
+                                                        className="w-full px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                                                     />
                                                 </TableCell>
                                                 <TableCell className='text-black'>
@@ -546,7 +640,7 @@ function AddQuotationPage() {
                                                         value={service.time}
                                                         onChange={(e) => handleTimeChange(index, e.target.value)}
                                                         placeholder="Enter time"
-                                                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
+                                                        className="w-full px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                                                     />
                                                 </TableCell>
                                                 <TableCell className='text-black'>
@@ -555,17 +649,17 @@ function AddQuotationPage() {
                                                         value={service.discount}
                                                         onChange={(e) => handleServiceDiscountChange(index, e.target.value)}
                                                         placeholder="Enter Discount"
-                                                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
+                                                        className="w-full px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                                                     />
                                                 </TableCell>
                                                 <TableCell className='text-black'>
                                                     <input
                                                         type="text"
-                                                        readOnly 
+                                                        readOnly
                                                         value={service.total}
                                                         onChange={(e) => handleTotalChange(index, e.target.value)}
                                                         placeholder="Enter Total"
-                                                        className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
+                                                        className="w-full px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                                                     />
                                                 </TableCell>
                                                 <TableCell className="text-black">
@@ -602,7 +696,7 @@ function AddQuotationPage() {
                         </div>
                     </div>
 
-                   
+
 
                 </div>
 
@@ -631,11 +725,11 @@ function AddQuotationPage() {
                         <div className="text-right">
                             <p className="mb-2">{grandTotalPrice.toFixed(2)}</p>
                             <input
-                                type="number"
+                                type="text"
                                 value={additionalDiscount}
                                 onChange={(e) => handleAdditionalDiscountChange(e.target.value)}
                                 placeholder="Enter Additional Discount"
-                                className="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:border-black text-black"
+                                className="w-16 px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                             />
                             <p className="mb-2">{grandTotalVatAmount.toFixed(2)}</p>
                             <p>{grandTotalPriceWithVat.toFixed(2)}</p>
@@ -648,26 +742,90 @@ function AddQuotationPage() {
                     {/* Preview Button */}
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                        onClick={() => {
-                            // Add your logic for Preview functionality
-                        }}
+                        onClick={openPreviewModal}
                     >
                         <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                             Preview
                         </span>
                     </button>
 
+
+
                     {/* Send Button */}
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                        onClick={() => {
-                            // Add your logic for Send functionality
-                        }}
+                        onClick={openDocumentModal}
                     >
                         <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                             Send
                         </span>
                     </button>
+
+
+                    {/* Document Type Modal */}
+                    {isDocumentModalOpen && (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
+                            
+                        >
+                            <div className="w-64 p-5 bg-white rounded-lg">
+                                <div className='flex mb-4'>
+                                    <h2 className="text-lg font-semibold ">Select Doc Type</h2>
+
+                                    <button type="button" className="inline-flex items-center justify-center text-sm text-gray-400 bg-transparent rounded-lg hover:text-gray-900 ms-auto dark:hover:text-white" data-modal-hide="default-modal" onClick={closeDocumentModal}>
+                                        <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                        </svg>
+                                        <span className="sr-only">Close modal</span>
+                                    </button>
+                               </div>
+                                
+
+                                <div className="flex items-center mb-4">
+                                    <input
+                                        type="radio"
+                                        id="pdf"
+                                        name="documentType"
+                                        value="PDF"
+                                        checked={selectedDocumentType === 'PDF'}
+                                        onChange={() => handleDocumentTypeSelect('PDF')}
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="pdf">PDF</label>
+                                </div>
+
+                                <div className="flex items-center mb-4">
+                                    <input
+                                        type="radio"
+                                        id="doc"
+                                        name="documentType"
+                                        value="DOC"
+                                        checked={selectedDocumentType === 'DOC'}
+                                        onChange={() => handleDocumentTypeSelect('DOC')}
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="doc">DOC</label>
+                                </div>
+
+                                <div className="flex items-center">
+                                    <input
+                                        type="radio"
+                                        id="excel"
+                                        name="documentType"
+                                        value="Xcel"
+                                        checked={selectedDocumentType === 'Xcel'}
+                                        onChange={() => handleDocumentTypeSelect('Xcel')}
+                                        className="mr-2"
+                                    />
+                                    <label htmlFor="excel">Xcel</label>
+                                </div>
+
+                                {/* Send Email Button */}
+
+                                <button type="button" onClick={sendEmail} className="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 mt-6">Send Email</button>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Save Button */}
                     <button
@@ -682,7 +840,169 @@ function AddQuotationPage() {
                     </button>
 
                 </div>
+
+
+                
+
+
+                {/* Preview Modal */}
+
+                <div
+                    id="default-modal"
+                    tabIndex="-1"
+                    aria-hidden={!isPreviewModalOpen} // Hide modal when not open
+                    className={`${isPreviewModalOpen ? 'fixed' : 'hidden'
+                        } overflow-y-auto overflow-x-hidden flex z-50 justify-center items-center w-full h-full md:w-full md:inset-0 md:h-[calc(100%-1rem)] max-h-full`}
+                >
+                    <div className="relative w-full max-w-2xl max-h-full p-4">
+                        {/* <!-- Modal content --> */}
+                        <div className="relative bg-white rounded-lg shadow">
+                            {/* <!-- Modal header --> */}
+                            <div className="flex items-center justify-between p-4 border-b rounded-t md:p-5 ">
+                                <h3 className="text-xl font-semibold text-black">
+                                    Sales Quotation
+                                </h3>
+                                <button type="button" className="inline-flex items-center justify-center text-sm text-gray-400 bg-transparent rounded-lg hover:bg-gray-200 hover:text-gray-900 ms-auto dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="default-modal" onClick={closePreviewModal}>
+                                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                    </svg>
+                                    <span className="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            {/* <!-- Modal body --> */}
+                            <div className='flex flex-col items-center justify-center'>
+
+                                <div className="logo">
+                                    <img src={header} width="100%" height="100%" alt="PMC" />
+                                </div>
+
+                                <div className='flex flex-col items-center mt-3'>
+                                    <h3 className="font-bold">SALES QUOTATION</h3>
+
+                                    <h1 className='mt-3 text-xs font-bold'>Contact No: </h1>
+                                </div>
+                            </div>
+                            <div className="flex justify-between mt-2 text-xs font-bold">
+                                <div className="flex flex-col ml-4">
+                                    <span>SQ No:</span>
+                                    {/* Add the variable or text for SQ No here */}
+                                    <span>Customer Code:</span>
+                                    {/* Add the variable or text for Customer Code here */}
+                                    <span>Customer Name:</span>
+                                    {/* Add the variable or text for Customer Name here */}
+                                    <span>Contact Person:</span>
+                                    {/* Add the variable or text for Contact Person here */}
+                                    <span>Email Address:</span>
+                                    {/* Add the variable or text for Email Address here */}
+                                </div>
+
+                                <div className="flex flex-col mr-4">
+                                    <span>Type QUOTATION1 Page 1:</span>
+                                    {/* Add the variable or text for Type QUOTATION1 Page 1 here */}
+                                    <span>Sales Quotation Date:</span>
+                                    {/* Add the variable or text for Sales Quotation Date here */}
+                                    <span>Salesman:</span>
+                                    {/* Add the variable or text for Salesman here */}
+                                    <span>SO Date:</span>
+                                    {/* Add the variable or text for SO Date here */}
+                                    <span>Customer Ref:</span>
+                                    {/* Add the variable or text for Customer Ref here */}
+                                </div>
+                            </div>
+
+                            {/* Table with 5 columns and sub-columns */}
+                            <div className="mt-6">
+                                <table className="w-full text-xs">
+                                    <thead>
+                                        <tr>
+                                            <th className="border border-black">No</th>
+                                            <th className="border border-black">Items Price</th>
+                                            <th className="border border-black">Items Name</th>
+                                            <th className="border border-black">QTY</th>
+                                            <th className="border border-black">
+                                                Price (SAR)
+                                                <div className="flex justify-between mt-2">
+                                                    <span>Unit Price</span>
+                                                    <span>%</span>
+                                                    <span>Value</span>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    {/* Add table body here with actual data */}
+                                    <tbody>
+                                        <tr>
+                                            {/* Add data for each column */}
+                                        </tr>
+                                        {/* Add more rows as needed */}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Additional section for Total, Discount, Net, VAT, and Total + VAT in table format */}
+                            <div className="mt-6">
+                                <table className="w-[40%] text-xs">
+                                    <tbody>
+                                        <tr>
+                                            <td className="border border-black">Total:</td>
+                                            {/* Add the variable or text for Total here */}
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black">Discount:</td>
+                                            {/* Add the variable or text for Discount here */}
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black">Net:</td>
+                                            {/* Add the variable or text for Net here */}
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black">VAT 15%:</td>
+                                            {/* Add the variable or text for VAT 15% here */}
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-black">Total + VAT:</td>
+                                            {/* Add the variable or text for Total + VAT here */}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+                            {/* Terms and Conditions */}
+                            <hr className="h-px my-6 bg-black border-0"></hr>
+                            <div className="mt-4 space-y-5 text-sm">
+                                <h6 className="font-bold">TERMS AND CONDITIONS:</h6>
+                                <p><strong>Payment:</strong> Delivery Against Official PO</p>
+                                <p><strong>Warranty:</strong> One Year Factory Warranty</p>
+                                <p><strong>Validity:</strong> 30 Days</p>
+                                <p><strong>Delivery:</strong> 30 Days</p>
+                                <p><strong>Other:</strong> Installation Charges Not Included in the Package</p>
+                                <p className="mt-2 font-bold"><em>REFUSAL TO RECEIVE PMC FINAL DELIVERY DUE TO UNAVAILABILITY OF THE PROJECT SITE WILL ONLY BE TOLERATED AS LONG THE CUSTOMER WILL PAY THE COMPLETE AMOUNT OF THE P.O. WITHIN 15 DAYS AFTER THEIR DELIVERY REFUSAL.</em></p>
+                            </div>
+                            {/* Prepared By and Received By */}
+                            <div className="flex flex-col mt-4 text-base font-bold">
+                                <div className="flex flex-col">
+                                    <span>Prepared By:</span>
+                                    {/* Add the variable or text for Prepared By here */}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span>Received By:</span>
+                                    {/* Add the variable or text for Received By here */}
+                                </div>
+                            </div>
+                            {/* <!-- Modal footer --> */}
+                            <div className="flex items-center">
+                                {/* Footer content goes here */}
+                                <img src={footer} width="100%" height="100%" alt="PMC" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
             </div>
+
         </div>
     );
 }

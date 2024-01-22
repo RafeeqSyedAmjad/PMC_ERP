@@ -14,11 +14,11 @@ export default function Navbar() {
     // }
     return (
         <nav className="bg-[#86A7FC] shadow-lg">
-            <div className="container mx-auto px-4">
+            <div className="container px-4 mx-auto">
                 <div className="flex items-center justify-between py-4">
                     <div className="flex items-center">
                         <img src={logo} alt="Logo" className="h-8 mr-4" />
-                        <Link to="/" className="text-white hover:text-gray-200 font-semibold text-lg">
+                        <Link to="/" className="text-lg font-semibold text-white hover:text-gray-200">
                             Home
                         </Link>
                         <Link to="/customers" className="ml-6 text-white hover:text-gray-200">
@@ -35,7 +35,7 @@ export default function Navbar() {
                         </Link>
                     </div>
                     <div>
-                        <Link to="/logout" className="text-white hover:text-gray-200 font-semibold">
+                        <Link to="/logout" className="font-semibold text-white hover:text-gray-200">
                             Logout
                         </Link>
                     </div>
