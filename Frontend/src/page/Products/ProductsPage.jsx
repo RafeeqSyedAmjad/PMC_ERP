@@ -11,6 +11,10 @@ function ProductsPage() {
     const [selectedBrand, setSelectedBrand] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
+    const [sortOrder, setSortOrder] = useState({
+        column: '',
+        ascending: true,
+    })
 
     //delete Button
     const handleDelete = async (productId) => {
@@ -117,6 +121,29 @@ function ProductsPage() {
         ));
     };
 
+
+    const handleSort = (column) => {
+        setSortOrder({
+            column,
+            ascending: sortOrder.column === column ? !sortOrder.ascending : true,
+        });
+
+        const sortedProducts = [...products].sort((a, b) => {
+            const valueA = column === 'id' ? a[column] : a[column].toLowerCase();
+            const valueB = column === 'id' ? b[column] : b[column].toLowerCase();
+
+            if (valueA < valueB) {
+                return sortOrder.ascending ? -1 : 1;
+            }
+            if (valueA > valueB) {
+                return sortOrder.ascending ? 1 : -1;
+            }
+            return 0;
+        });
+
+        setProducts(sortedProducts);
+    };
+
     
 
     return (
@@ -145,15 +172,19 @@ function ProductsPage() {
                         ))}
                     </select>
                 </div>
-                <div className="overflow-x-auto ">
-                    <table className="w-full table-auto">
+                <div className="overflow-x-auto table-wrap">
+                    <table className="w-full table-auto table-responsive">
                         <thead>
                             <tr className="text-gray-700 uppercase bg-gray-200">
-                                <th className="px-6 py-3 text-left">ID</th>
-                                <th className="px-6 py-3 text-left">Name</th>
-                                <th className="px-6 py-3 text-left">Part Number</th>
-                                <th className="px-6 py-3 text-left">Brand</th>
-                                <th className="px-6 py-3 text-left">Quantity</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('id')} >ID {sortOrder.column === 'id' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('name')}> Name{' '}
+                                    {sortOrder.column === 'name' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('part_number')}>Part Number{' '}
+                                    {sortOrder.column === 'part_number' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('brand')}>Brand{' '}
+                                    {sortOrder.column === 'brand' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('quantity')}>Quantity{' '}
+                                    {sortOrder.column === 'quantity' && (sortOrder.ascending ? '↑' : '↓')}</th>
                                 <th className="px-6 py-3 text-center">Actions</th>
                             </tr>
                         </thead>

@@ -9,6 +9,10 @@ function QuotationsPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
+    const [sortOrder, setSortOrder] = useState({
+        column: '',
+        ascending: true,
+    });
 
     
 
@@ -144,6 +148,29 @@ function QuotationsPage() {
         );
     };
 
+
+    const handleSort = (column) => {
+        setSortOrder({
+            column,
+            ascending: sortOrder.column === column ? !sortOrder.ascending : true,
+        });
+
+        const sortedQuotations = [...quotations].sort((a, b) => {
+            const valueA = column === 'sales_quotation_id' ? a[column] : a[column].toLowerCase();
+            const valueB = column === 'sales_quotation_id' ? b[column] : b[column].toLowerCase();
+
+            if (valueA < valueB) {
+                return sortOrder.ascending ? -1 : 1;
+            }
+            if (valueA > valueB) {
+                return sortOrder.ascending ? 1 : -1;
+            }
+            return 0;
+        });
+
+        setQuotations(sortedQuotations);
+    };
+
     return (
         <div>
             <Navbar />
@@ -165,14 +192,14 @@ function QuotationsPage() {
                         Add Quotation
                     </Link>
                 </div>
-                <div className='overflow-x-auto'>
-                    <table className="w-full table-auto">
+                <div className='overflow-x-auto table-wrap'>
+                    <table className="w-full table-auto table-responsive">
                         <thead>
                             <tr className="text-gray-700 uppercase bg-gray-200">
-                                <th className="px-6 py-3 text-left">SQ No.</th>
-                                <th className="px-6 py-3 text-left">Customer ID</th>
-                                <th className="px-6 py-3 text-left">Quotation Date</th>
-                                <th className="px-6 py-3 text-left">Amount</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('sales_quotation_id')}>SQ No. {sortOrder.column === 'sales_quotation_id' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('customer')}>Customer ID{' '} {sortOrder.column === 'customer' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('created_on')}>Quotation Date{' '} {sortOrder.column === 'created_on' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('qtotal_including_vat')}>Amount{' '}{sortOrder.column === 'qtotal_including_vat' && (sortOrder.ascending ? '↑' : '↓')}</th>
                                 <th className="px-6 py-3 text-left">Contact No.</th>
                                 <th className="px-6 py-3 text-center">Actions</th>
                             </tr>
