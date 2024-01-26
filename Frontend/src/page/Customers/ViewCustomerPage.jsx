@@ -15,10 +15,7 @@ function ViewCustomerPage() {
         customerMap: '',
         customerVat: '',
         customerType: '',
-        contactName: '',
-        contactMobile: '',
-        contactDesignation: '',
-        contactEmail: '',
+        contacts: [],
     });
 
     const [showContacts,setShowContacts] = useState(false);
@@ -103,26 +100,30 @@ function ViewCustomerPage() {
                     <h4 className="mb-2">Contact Information</h4>
 
                     {showContacts && (
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-600">Name</label>
-                                <div className="readonly-field">{customerDetails.contactName}</div>
-                            </div>
+                        <div>
+                            {customerDetails.contacts.map((contact, index) => (
+                                <div key={index} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-600">Name</label>
+                                        <div className="readonly-field">{contact.contactName}</div>
+                                    </div>
 
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-600">Mobile</label>
-                                <div className="readonly-field">{customerDetails.contactMobile}</div>
-                            </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-600">Mobile</label>
+                                        <div className="readonly-field">{contact.contactMobile}</div>
+                                    </div>
 
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-600">Email</label>
-                                <div className="readonly-field">{customerDetails.contactEmail}</div>
-                            </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-600">Email</label>
+                                        <div className="readonly-field">{contact.contactEmail}</div>
+                                    </div>
 
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-600">Designation</label>
-                                <div className="readonly-field">{customerDetails.contactDesignation}</div>
-                            </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-600">Designation</label>
+                                        <div className="readonly-field">{contact.contactDesignation}</div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
 

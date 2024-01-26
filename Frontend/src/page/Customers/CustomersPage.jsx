@@ -145,49 +145,51 @@ function CustomersPage() {
                         className='w-full p-2 border border-gray-300 rounded-md'
                     />
                 </div>
-                
-                <table className="w-full table-auto">
-                    <thead>
-                        <tr className="text-gray-700 uppercase bg-gray-200">
-                            <th className="px-6 py-3 text-left" onClick={() => handleSort('id')}>ID {sortOrder.column === 'id' && (sortOrder.ascending ? '↑' : '↓')}</th>
-                            <th className="px-6 py-3 text-left" onClick={() => handleSort('customerName')}>
-                                Company Name{' '}
-                                {sortOrder.column === 'customerName' && (sortOrder.ascending ? '↑' : '↓')}
-                            </th>
-                            <th className="px-6 py-3 text-left" onClick={() => handleSort('customerEmail')}> Email {sortOrder.column === 'customerEmail' && (sortOrder.ascending ? '↑' : '↓')}</th>
-                            <th className="px-6 py-3 text-left" onClick={() => handleSort('customerPhone')}>Mobile {sortOrder.column === 'customerPhone' && (sortOrder.ascending ? '↑' : '↓')}</th>
-                            <th className="px-6 py-3 text-center">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-gray-600">
-                        {currentItems.map((customer) => (
-                            <tr key={customer.id} className="border-b border-gray-200 hover:bg-gray-100">
-                                <td className="px-6 py-3">{customer.id}</td>
-                                <td className="px-6 py-3">{customer.customerName}</td>
-                                <td className="px-6 py-3">{customer.customerEmail}</td>
-                                <td className="px-6 py-3">{customer.customerPhone}</td>
-                                <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
-                                    <Link to={`/customers/edit/${customer.id}/`} className="text-blue-400" title='Edit Details'>
-                                        <FaRegEdit />
-                                    </Link>
-                                    <button
-                                        onClick={() => handleDelete(customer.id)}
-                                        className="text-red-400"
-                                        title='Delete'
-                                    >
-                                        <IoTrashBin />
-                                    </button>
-                                    <Link to={`/customers/view/${customer.id}/`} className="" title='View'>
-                                        <CiViewBoard />
-                                    </Link>
-                                    <Link to={`/customers/quotes/${customer.id}`} className="" title="Quotes">
-                                        <BsBlockquoteRight />
-                                    </Link>
-                                </td>
+                <div className='overflow-x-auto table-wrap'>
+                    <table className="w-full table-auto table-responsive">
+                        <thead>
+                            <tr className="text-gray-700 uppercase bg-gray-200">
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('id')}>ID {sortOrder.column === 'id' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('customerName')}>
+                                    Company Name{' '}
+                                    {sortOrder.column === 'customerName' && (sortOrder.ascending ? '↑' : '↓')}
+                                </th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('customerEmail')}> Email {sortOrder.column === 'customerEmail' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('customerPhone')}>Mobile {sortOrder.column === 'customerPhone' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-center">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="text-gray-600">
+                            {currentItems.map((customer) => (
+                                <tr key={customer.id} className="border-b border-gray-200 hover:bg-gray-100">
+                                    <td className="px-6 py-3">{customer.id}</td>
+                                    <td className="px-6 py-3">{customer.customerName}</td>
+                                    <td className="px-6 py-3">{customer.customerEmail}</td>
+                                    <td className="px-6 py-3">{customer.customerPhone}</td>
+                                    <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
+                                        <Link to={`/customers/edit/${customer.id}/`} className="text-blue-400" title='Edit Details'>
+                                            <FaRegEdit />
+                                        </Link>
+                                        <button
+                                            onClick={() => handleDelete(customer.id)}
+                                            className="text-red-400"
+                                            title='Delete'
+                                        >
+                                            <IoTrashBin />
+                                        </button>
+                                        <Link to={`/customers/view/${customer.id}/`} className="" title='View'>
+                                            <CiViewBoard />
+                                        </Link>
+                                        <Link to={`/customers/quotes/${customer.id}`} className="" title="Quotes">
+                                            <BsBlockquoteRight />
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                
             </div>
             <div className = "flex items-center justify-center my-4 space-x-2">
                 <button onClick={prevPage}
