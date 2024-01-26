@@ -10,6 +10,10 @@ function ServicesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [sortOrder, setSortOrder] = useState({
+    column: '',
+    ascending: true,
+  });
 
   const handleDelete = async(serviceId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this service?');
@@ -100,6 +104,29 @@ function ServicesPage() {
     ));
   };
 
+
+  const handleSort = (column) => {
+    setSortOrder({
+      column,
+      ascending: sortOrder.column === column ? !sortOrder.ascending : true,
+    });
+
+    const sortedServices = [...services].sort((a, b) => {
+      const valueA = column === 'id' ? a[column] : a[column].toLowerCase();
+      const valueB = column === 'id' ? b[column] : b[column].toLowerCase();
+
+      if (valueA < valueB) {
+        return sortOrder.ascending ? -1 : 1;
+      }
+      if (valueA > valueB) {
+        return sortOrder.ascending ? 1 : -1;
+      }
+      return 0;
+    });
+
+    setServices(sortedServices);
+  };
+
   return (
     <div>
       <Navbar />
@@ -120,14 +147,17 @@ function ServicesPage() {
             Add Service
           </Link>
         </div>
-        <div className='overflow-x-auto'>
-          <table className="w-full table-auto">
+        <div className='overflow-x-auto table-wrap'>
+          <table className="w-full table-auto table-responsive">
             <thead>
               <tr className="text-gray-700 uppercase bg-gray-200">
-                <th className="px-6 py-3 text-left">ID</th>
-                <th className="px-6 py-3 text-left">Type of Service</th>
-                <th className="px-6 py-3 text-left">Time</th>
-                <th className="px-6 py-3 text-left">Price</th>
+                <th className="px-6 py-3 text-left" onClick={() => handleSort('id')}>ID {sortOrder.column === 'id' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                <th className="px-6 py-3 text-left" onClick={() => handleSort('type_of_service')}>Type of Service{' '}
+                  {sortOrder.column === 'type_of_service' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                <th className="px-6 py-3 text-left" onClick={() => handleSort('time')}>Time{' '}
+                  {sortOrder.column === 'time' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                <th className="px-6 py-3 text-left" onClick={() => handleSort('price')}>Price{' '}
+                  {sortOrder.column === 'price' && (sortOrder.ascending ? '↑' : '↓')}</th>
                 <th className="px-6 py-3 text-center">Actions</th>
               </tr>
             </thead>

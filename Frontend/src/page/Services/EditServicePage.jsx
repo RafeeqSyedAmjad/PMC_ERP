@@ -1,6 +1,7 @@
 import  { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Navbar } from '../../components/ComponentExport';
+import toast from 'react-hot-toast';
 
 function EditServicePage() {
     const { serviceId } = useParams();
@@ -50,12 +51,16 @@ function EditServicePage() {
 
             if (response.ok) {
                 console.log('Service updated successfully!');
+                toast.success('Successfully Updated!')
                 // Redirect or handle navigation as needed
             } else {
-                throw new Error('Failed to update service');
+                // throw new Error('Failed to update service');
+                toast.error('Failed to update')
+
             }
         } catch (error) {
             console.error('Error updating service:', error);
+            toast.error('Error updating Service')
         }
     };
 
@@ -63,11 +68,7 @@ function EditServicePage() {
         <div>
             <Navbar />
             <div className="container max-w-md p-6 mx-auto mt-8 bg-white rounded-md shadow-xl">
-                <div className="flex justify-end mb-4">
-                    <Link to="/customers/add" className="px-4 py-2 text-white bg-green-500 rounded-md">
-                        Add Customer
-                    </Link>
-                </div>
+                
                 <h1 className="mb-6 text-3xl font-bold text-center text-blue-500">Edit Service</h1>
                 <form>
                     <div className="mb-4">

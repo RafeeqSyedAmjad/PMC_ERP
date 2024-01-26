@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from '../../components/ComponentExport';
+import toast from 'react-hot-toast';
 
 function EditCustomerPage() {
     const { customerId } = useParams();
-
+    const navigate = useNavigate();
     const [customerDetails, setCustomerDetails] = useState({
         customerName: '',
         customerEmail: '',
@@ -13,10 +14,11 @@ function EditCustomerPage() {
         customerVat: '',
         customerMap: '',
         customerType: '',
-        contactName: '',
-        contactMobile: '',
-        contactDesignation: '',
-        contactEmail: '',
+        customerArea: '',
+        customerCity: '',
+        customerStreet: '',
+        customerZip: '',
+        contacts: [],
     });
 
     useEffect(() => {
@@ -31,6 +33,8 @@ function EditCustomerPage() {
                         ...data,
                         customerType: prevDetails.customerType || 'retail', // or any default value
                     }));
+
+                    console.log('customerDetails', customerDetails);
                 } else {
                     throw new Error('Failed to fetch customer details');
                 }
@@ -50,27 +54,49 @@ function EditCustomerPage() {
         }));
     };
 
+    const handleContactChange = (index, e) => {
+        const { name, value } = e.target;
+        setCustomerDetails((prevDetails) => {
+            const updatedContacts = [...prevDetails.contacts];
+            updatedContacts[index] = {
+                ...updatedContacts[index],
+                [name]: value,
+            };
+            return {
+                ...prevDetails,
+                contacts: updatedContacts,
+            };
+        });
+    };
+
     
 
     const handleUpdateCustomer = async () => {
         try {
+            console.log('Updating customer with data:', JSON.stringify(customerDetails));
             const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`,{           
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(customerDetails),
-            });
+            })
 
-            if (response.ok) {
-                const errorMessage = await response.text();
-                console.error('Failed to update customer:', errorMessage);
-                // Redirect to customer_list.html or handle navigation as needed
+            console.log('Response from the server:', response);
+
+            if (response.ok || response.status === 204) {
+                toast.success('Customer Updated created successfully!');
+                navigate(`/customers`);
+                
             } else {
-                throw new Error('Failed to update customer');
+                
+                toast.error('Error updating customer. Please try again.');
+                
             }
         } catch (error) {
             console.error('Error updating customer:', error);
+            toast.error('Error updating customer. Please try again.');
+
         }
     }
 
@@ -176,58 +202,65 @@ function EditCustomerPage() {
                             <option value="factory">Factory</option>
                         </select>
                     </div>
-                    {/* <div className="mb-4">
-                        <label htmlFor="contactName" className="block text-sm font-medium text-gray-600">
-                            Contact Name
-                        </label>
-                        <input
-                            type="text"
-                            id="contactName"
-                            name="contactName"
-                            value={customerDetails.contactName}
-                            onChange={handleInputChange}
-                            className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                        />
-                    </div>
+
+                    
                     <div className="mb-4">
-                        <label htmlFor="contactMobile" className="block text-sm font-medium text-gray-600">
-                            Contact Mobile Number
+                        <label htmlFor="contacts" className="block text-sm font-medium text-gray-600">
+                            Contacts
                         </label>
-                        <input
-                            type="tel"
-                            id="contactMobile"
-                            name="contactMobile"
-                            value={customerDetails.contactMobile}
-                            onChange={handleInputChange}
-                            className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                        />
+                        {customerDetails.contacts.map((contact, index) => (
+                            <div key={index} className="grid grid-cols-1 gap-4 mt-2 md:grid-cols-2 lg:grid-cols-4">
+                                <div>
+                                    <label htmlFor={`contacts[${index}].contactName`} className="block text-sm font-medium text-gray-600">
+                                        Contact Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name={`contacts[${index}].contactName`}
+                                        value={contact.contactName}
+                                        onChange={(e) => handleContactChange(index, e)}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor={`contacts[${index}].contactDesignation`} className="block text-sm font-medium text-gray-600">
+                                        Designation
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name={`contacts[${index}].contactDesignation`}
+                                        value={contact.contactDesignation}
+                                        onChange={(e) => handleContactChange(index, e)}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor={`contacts[${index}].contactMobile`} className="block text-sm font-medium text-gray-600">
+                                        Mobile
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name={`contacts[${index}].contactMobile`}
+                                        value={contact.contactMobile}
+                                        onChange={(e) => handleContactChange(index, e)}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor={`contacts[${index}].contactEmail`} className="block text-sm font-medium text-gray-600">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name={`contacts[${index}].contactEmail`}
+                                        value={contact.contactEmail}
+                                        onChange={(e) => handleContactChange(index, e)}
+                                        className="w-full p-2 border border-gray-300 rounded-md"
+                                    />
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="mb-4">
-                        <label htmlFor="contactDesignation" className="block text-sm font-medium text-gray-600">
-                            Contact Designation
-                        </label>
-                        <input
-                            type="text"
-                            id="contactDesignation"
-                            name="contactDesignation"
-                            value={customerDetails.contactDesignation}
-                            onChange={handleInputChange}
-                            className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-600">
-                            Contact Email
-                        </label>
-                        <input
-                            type="email"
-                            id="contactEmail"
-                            name="contactEmail"
-                            value={customerDetails.contactEmail}
-                            onChange={handleInputChange}
-                            className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-                        />
-                    </div> */}
                     <button
                         type="button"
                         onClick={handleUpdateCustomer}
