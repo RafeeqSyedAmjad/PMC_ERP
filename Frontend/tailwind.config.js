@@ -2,10 +2,10 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{js,jsx}',
-    './components/**/*.{js,jsx}',
-    './app/**/*.{js,jsx}',
-    './src/**/*.{js,jsx}',
+    "./pages/**/*.{js,jsx}",
+    "./components/**/*.{js,jsx}",
+    "./app/**/*.{js,jsx}",
+    "./src/**/*.{js,jsx}",
   ],
   prefix: "",
   theme: {
@@ -58,6 +58,17 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        bounce: {
+          "0%, 20%, 60%, 100%": {
+            transform: "translateY(0)",
+          },
+          "40%": {
+            transform: "translateY(-30px)",
+          },
+          "80%": {
+            transform: "translateY(-20px)",
+          },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -68,10 +79,11 @@ module.exports = {
         },
       },
       animation: {
+        bounce: "bounce 1.5s ease-in-out",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-}
+  plugins: [require("tailwindcss-animate")], // Add semicolon if needed
+};
