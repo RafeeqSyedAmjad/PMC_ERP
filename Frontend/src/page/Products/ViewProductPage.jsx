@@ -8,6 +8,7 @@ function ViewProductPage() {
     const [productDetails, setProductDetails] = useState({
         // ... (your initial state)
     });
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     useEffect(() => {
         async function fetchProductDetails() {
@@ -81,15 +82,32 @@ function ViewProductPage() {
     }
 
     function renderImage(label, src) {
+        
         return (
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600">{label}</label>
+            <div className = {`mb-4 relative`}>
+        <label className="block text-sm font-medium text-gray-600">{label}</label>
+        <img
+          src={src}
+          alt={`${label} Preview`}
+          className={`object-contain w-full h-64 mb-2 rounded-md cursor-pointer`}
+          onClick={() => setIsFullscreen(!isFullscreen)}
+        />
+
+    {
+        isFullscreen && (
+            <div
+                className="fixed top-0 left-0 z-50 flex items-center justify-center w-screen h-screen bg-black"
+                onClick={() => setIsFullscreen(false)}
+            >
                 <img
                     src={src}
-                    alt={`${label} Preview`}
-                    className="object-cover w-full h-32 mb-2 rounded-md"
+                    alt={`${label} Fullscreen Preview`}
+                    className="object-contain max-w-full max-h-full"
                 />
             </div>
+        )
+    }
+      </div >
         );
     }
 }
