@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from '../../components/ComponentExport';
+import toast from 'react-hot-toast';
 
 function EditProductPage() {
   const { productId } = useParams();
-
+  const navigate = useNavigate();
   const [productDetails, setProductDetails] = useState({
     name: '',
     vendorName: '',
@@ -23,7 +24,7 @@ function EditProductPage() {
     price5: '',
     countryOfOrigin: '',
     hazardOrNonHazard: '',
-    productPDF: '',
+    pdf_file: '',
     image1: '',
     image2: '',
     image3: '',
@@ -51,6 +52,7 @@ function EditProductPage() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log(productDetails)
     setProductDetails((prevDetails) => ({
       ...prevDetails,
       [name]: value,
@@ -66,15 +68,22 @@ function EditProductPage() {
         },
         body: JSON.stringify(productDetails),
       });
-
+      console.log(productDetails);
+      console.log('Raw response:', response);
+      
       if (response.ok) {
         console.log('Product updated successfully!');
+        toast.success('Product Updated successfully!');
+        navigate(`/products`);
         // Redirect or handle navigation as needed
       } else {
-        throw new Error('Failed to update product');
+        // throw new Error('Failed to update product');
+        toast.error('Error updating Product. Please try again.');
       }
     } catch (error) {
       console.error('Error updating product:', error);
+      toast.error('Error.');
+
     }
   }
 
@@ -314,10 +323,10 @@ function EditProductPage() {
               Product PDF
             </label>
             <input
-              type="text"
+              type="file"
               id="productPDF"
               name="productPDF"
-              value={productDetails.productPDF}
+              value={productDetails.pdf_file}
               onChange={handleInputChange}
               className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
             />
