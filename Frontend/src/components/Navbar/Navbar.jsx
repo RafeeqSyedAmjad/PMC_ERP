@@ -41,26 +41,26 @@ export default function Navbar() {
                 </div>
                 <ul className='items-center hidden gap-8 md:flex upppercase'>
                     <li>
-                        <Link to="/" className="px-3 text-black py-7 hover:text-gray-200">Home</Link>
+                        <Link to="/" className="px-3 text-lg font-bold text-black py-7 hover:text-gray-200">Home</Link>
 
                     </li>
                     <li>
-                        <Link to="/customers" className="px-3 text-black hover:text-gray-200">Customers</Link>
+                        <Link to="/customers" className="px-3 text-lg font-bold text-black hover:text-gray-200">Customers</Link>
 
                     </li>
                     <li>
-                        <Link to="/products" className="px-3 text-black hover:text-gray-200">Products</Link>
+                        <Link to="/products" className="px-3 text-lg font-bold text-black hover:text-gray-200">Products</Link>
 
                     </li>
                     <li>
-                        <Link to="/services" className="px-3 text-black hover:text-gray-200">Services</Link>
+                        <Link to="/services" className="px-3 text-lg font-bold text-black hover:text-gray-200">Services</Link>
 
                     </li>
                     <li>
-                        <Link to="/quotations" className="px-3 text-black hover:text-gray-200">Quotations</Link>
+                        <Link to="/quotations" className="px-3 text-lg font-bold text-black hover:text-gray-200">Quotations</Link>
                     </li>
                     <li>
-                        <Link to="/invoicing" className="px-3 text-black hover:text-gray-200">Invocing</Link>
+                        <Link to="/invoicing" className="px-3 text-lg font-bold text-black hover:text-gray-200">Invocing</Link>
                     </li>
                     <NavLinks />
                 </ul>
@@ -75,21 +75,21 @@ export default function Navbar() {
                 `}>
                     <div className='mb-10'>
                         <li>
-                            <Link to="/" className="px-3 mb-10 text-black py-7 hover:text-gray-200">Home</Link>
+                            <Link to="/" className="px-3 mb-10 text-lg font-bold text-black py-7 hover:text-gray-200">Home</Link>
 
                         </li>
                     </div>
                     
                     <div className='mb-10'>
                         <li>
-                            <Link to="/customers" className="px-3 text-black hover:text-gray-200">Customers</Link>
+                            <Link to="/customers" className="px-3 text-lg font-bold text-black hover:text-gray-200">Customers</Link>
 
                         </li>
                     </div>
 
                     <div className='mb-10'>
                         <li>
-                            <Link to="/products" className="px-3 text-black hover:text-gray-200">Products</Link>
+                            <Link to="/products" className="px-3 text-lg font-bold text-black hover:text-gray-200">Products</Link>
 
                         </li>
                     </div>
@@ -98,25 +98,25 @@ export default function Navbar() {
 
                     <div className='mb-10'>
                         <li>
-                            <Link to="/services" className="px-3 text-black hover:text-gray-200">Services</Link>
+                            <Link to="/services" className="px-3 text-lg font-bold text-black hover:text-gray-200">Services</Link>
 
                         </li>
                     </div>
                     
                     <div className='mb-10'>
                         <li>
-                            <Link to="/quotations" className="px-3 text-black hover:text-gray-200">Quotations</Link>
+                            <Link to="/quotations" className="px-3 text-lg font-bold text-black hover:text-gray-200">Quotations</Link>
                         </li>
                     </div>
                     
                     <div className='mb-6'>
                         <li>
-                            <Link to="/invoicing" className="px-3 text-black hover:text-gray-200">Invocing</Link>
+                            <Link to="/invoicing" className="px-3 text-lg font-bold text-black hover:text-gray-200">Invocing</Link>
                         </li>
                     </div>
                     
                     <NavLinks />
-                    <div className="py-5">
+                    <div className="py-5 ">
                         <Button onClick={handleLogout}>Logout</Button>
                     </div>
                 </ul>

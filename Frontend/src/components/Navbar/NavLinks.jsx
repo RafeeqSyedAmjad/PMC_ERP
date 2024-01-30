@@ -13,17 +13,17 @@ const NavLinks = () => {
                 <div key={linkIndex}>
                     <div className="px-3 text-left md:cursor-pointer group">
                         <h1
-                            className="flex items-center justify-between pr-5 text-black py-7 md:pr-0 group"
+                            className="flex items-center justify-between pr-5 text-lg font-bold text-black py-7 md:pr-0 group"
                             onClick={() => {
                                 heading !== link.name ? setHeading(link.name) : setHeading("");
                                 setSubHeading("");
                             }}
                         >
                             {link.name}
-                            <span className="inline text-xl md:hidden">
+                            <span className="inline text-lg font-bold md:hidden">
                                 {heading === link.name ? <IoChevronUp /> : <IoChevronDownSharp />}
                             </span>
-                            <span className="hidden text-xl md:mt-1 md:ml-2 md:block group-hover:rotate-180 group-hover:-mt-2">
+                            <span className="hidden text-lg font-bold md:mt-1 md:ml-2 md:block group-hover:rotate-180 group-hover:-mt-2">
                                 <IoChevronDownSharp />
                             </span>
                         </h1>
@@ -36,13 +36,13 @@ const NavLinks = () => {
                                     <div className="grid grid-cols-1 gap-10 p-5 bg-[#B4D4FF]">
                                         {link.sublinks.map((mysublinks, sublinkIndex) => (
                                             <div key={sublinkIndex}>
-                                                <h1 className="text-lg font-semibold text-black hover:text-white">
+                                                <h1 className="text-lg font-bold text-black hover:text-white">
                                                     {mysublinks.Head}
                                                 </h1>
                                                 {mysublinks.sublink && (
                                                     <ul>
                                                         {mysublinks.sublink.map((slink, slinkIndex) => (
-                                                            <li key={slinkIndex} className="text-sm text-black my-2.5">
+                                                            <li key={slinkIndex} className="text-lg font-bold text-black my-2.5">
                                                                 <Link to={slink.link} className="hover:text-[#EEF5FF]">
                                                                     {slink.name}
                                                                 </Link>
@@ -72,7 +72,7 @@ const NavLinks = () => {
                                                 ? setSubHeading(slinks.Head)
                                                 : setSubHeading("")
                                         }
-                                        className="flex items-center justify-between py-4 pr-5 font-semibold text-black cursor-pointer pl-7 md:pr-0 hover:text-white"
+                                        className="flex items-center justify-between py-4 pr-5 text-lg font-bold text-black cursor-pointer pl-7 md:pr-0 hover:text-white"
                                     >
                                         {slinks.Head}
                                     </h1>
