@@ -29,6 +29,7 @@ function AddProductPage() {
     image2: "",
     image3: "",
     image4: "",
+    parts: [], // New field for product parts
   });
 
 
@@ -56,16 +57,56 @@ function AddProductPage() {
 
   // Track which image option is selected
   const [addImageButtonClicked, setAddImageButtonClicked] = useState(false);
-  
+
+  // For Modal
+  const [isSetModalOpen, setIsSetModalOpen] = useState(false);
+
+
+  const [partDetails, setPartDetails] = useState({
+    partName: "",
+    partCode: "",
+  });
+
+  const handleInputChangeModal = (e) => {
+    const { name, value } = e.target;
+    setPartDetails((prevDetails) => ({ ...prevDetails, [name]: value }));
+  };
+
+  const handleCloseModal = () => {
+    setIsSetModalOpen(false);
+    setPartDetails({ partName: "", partCode: "" });
+  };
+
+
+  const handleAddPart = () => {
+    if (partDetails.partName.trim() !== "" && partDetails.partCode.trim() !== "") {
+      setProductDetails((prevDetails) => ({
+        ...prevDetails,
+        parts: [...prevDetails.parts, partDetails],
+      }));
+      setPartDetails({ partName: "", partCode: "" });
+      toast.success('Product Part added successfully!');
+      handleCloseModal();
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
+
+    if (name === "unit_of_measure" && value === "set") {
+      // Open the modal
+      setIsSetModalOpen(true);
+    }
+
     setProductDetails((prevDetails) => ({
       ...prevDetails,
       [name]: type === "file" ? files[0] : value,
     }));
+
     // Validate the field
     validateField(name, value);
   };
+
 
   const validateField = (name, value) => {
     // You can add more specific validation rules if needed
@@ -85,6 +126,12 @@ function AddProductPage() {
 
       Object.entries(productDetails).forEach(([key, value]) => {
         formData.append(key, value);
+      });
+
+      // Append product parts
+      productDetails.parts.forEach((part, index) => {
+        formData.append(`parts[${index}][partName]`, part.partName);
+        formData.append(`parts[${index}][partCode]`, part.partCode);
       });
 
       // Make the API request using fetch
@@ -266,7 +313,7 @@ function AddProductPage() {
                   } rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500 sm:text-sm`}
                 required
               >
-                <option value="select" disabled>Select Unit</option>
+                <option value="" disabled>Select Unit</option>
                 <option value="meters">Meters</option>
                 <option value="kg">Kg</option>
                 <option value="liters">Liters</option>
@@ -363,7 +410,7 @@ function AddProductPage() {
                   } rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500 sm:text-sm`}
                 required
               >
-                <option value="select" selected disabled>Select Country</option>
+                <option value=""  disabled>Select Country</option>
                 <option value="USA">USA</option>
                 <option value="EUROPE">EUROPE</option>
                 <option value="CHINA">CHINA</option>
@@ -388,7 +435,7 @@ function AddProductPage() {
                   } rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-500 sm:text-sm`}
                 required
               >
-                <option value="select" selected disabled>Select Hazard</option>
+                <option value="" disabled>Select Hazard</option>
                 <option value="Hazard">Hazard</option>
                 <option value="Non-Hazard">Non-Hazard</option>
                 {/* Add more options as needed */}
@@ -422,6 +469,16 @@ function AddProductPage() {
                 className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 placeholder="Write your Specifications here..."
               ></textarea>
+            </div>
+
+            {/* Display Added Parts */}
+            <div className="mb-4">
+              <h2 className="mb-2 text-sm font-medium text-gray-700">Product Parts</h2>
+              {productDetails.parts.map((part, index) => (
+                <div key={index} className="mb-2">
+                  <span className="font-semibold">{part.partName}</span> - {part.partCode}
+                </div>
+              ))}
             </div>
           </div>
           
@@ -463,6 +520,61 @@ function AddProductPage() {
 
         </form>
       </div>
+
+      {/* Modal */}
+      {isSetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
+          <div className="max-w-md p-8 mx-auto bg-white rounded-lg">
+            <h2 className="mb-4 text-lg font-semibold">Add Part</h2>
+
+            {/* Part Name Input */}
+            <div className="mb-4">
+              <label htmlFor="partName" className="text-sm font-medium text-gray-700">
+                Part Name
+              </label>
+              <input
+                type="text"
+                id="partName"
+                name="partName"
+                value={partDetails.partName}
+                onChange={handleInputChangeModal}
+                className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+              />
+            </div>
+
+            {/* Part Code Input */}
+            <div className="mb-4">
+              <label htmlFor="partCode" className="text-sm font-medium text-gray-700">
+                Part Code
+              </label>
+              <input
+                type="text"
+                id="partCode"
+                name="partCode"
+                value={partDetails.partCode}
+                onChange={handleInputChangeModal}
+                className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+              />
+            </div>
+
+            {/* Add Part Button */}
+            <button
+              onClick={handleAddPart}
+              className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            >
+              Add Part
+            </button>
+
+            {/* Close Button */}
+            <button
+              onClick={handleCloseModal}
+              className="w-full px-4 py-2 mt-4 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
