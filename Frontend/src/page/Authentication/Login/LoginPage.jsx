@@ -1,46 +1,82 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import logo from '../../../assets/logo.png';
+import { useRecoilState } from 'recoil';
+import { isAuthenticatedState, tokenState } from '@/atoms/authState';
+import { useNavigate } from 'react-router-dom';
+import toast from "react-hot-toast";
+
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [authenticated, setAuthenticated] = useState(false);
+    const Navigate = useNavigate();
 
-    const validCredentials = [
-        { username: 'javaid@pmc.com', password: 'javaid@123' },
-        { username: 'noman@pmc.com', password: 'noman@123' },
-        { username: 'pmcsaudi@gmail.com', password: 'pmcsaudi@123' },
-    ];
 
-    const handleSubmit = (e) => {
+    // Use Recoil to manage authentication state and token
+    const [isAuthenticated, setIsAuthenticated] = useRecoilState(isAuthenticatedState); // eslint-disable-line no-unused-vars
+    const [token, setToken] = useRecoilState(tokenState); // eslint-disable-line no-unused-vars
+
+    
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const matchedUser = validCredentials.find(
-            (user) => user.username === username && user.password === password
-        );
+        try {
+            const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "email": username,
+                    "password": password
+                }),
+            });
 
-        if (matchedUser) {
-            setAuthenticated(true);
-        } else {
-            setError('Invalid username or password');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorData.errors.non_field_errors}`);
+            }
+
+            const data = await response.json();
+
+            if (data && data.Token && data.Token.access) {
+                // Store the token in both Recoil state and localStorage
+                setToken(data.Token.access);
+                localStorage.setItem('token',data.Token.access);
+                setIsAuthenticated(true);
+                toast.success('SuccessFully logined');
+                Navigate('/');
+                
+                
+            } else {
+                console.error('Error: Unexpected response format');
+                toast.error('Unable to login Please Check the Entered Details');
+            }
+        } catch (error) {
+            setError(`Error: ${error.message}`);
+            toast.error('Unable to login Please Check the Entered Details');
+
         }
     };
 
-    if (authenticated) {
-        return <Navigate to="/" />;
-    }
+    useEffect(() => {
+        setError(''); // Clear error message when username or password is updated
+    }, [username, password]);
+
+
+   
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-100">
-            <div className="max-w-md w-full bg-white p-8 shadow-md rounded-md">
+        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <div className="w-full max-w-md p-8 bg-white rounded-md shadow-md">
                 <div className="mb-8 text-center">
-                    <img src={logo} alt="Logo" className="mx-auto h-16" />
-                    <h2 className="text-2xl font-semibold mt-4">Login</h2>
+                    <img src={logo} alt="Logo" className="h-16 mx-auto" />
+                    <h2 className="mt-4 text-2xl font-semibold">Login</h2>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    {error && <div className="text-red-500 mb-4">{error}</div>}
+                    {error && <div className="mb-4 text-red-500">{error}</div>}
                     <div className="mb-4">
                         <label htmlFor="username" className="block text-gray-600">
                             Username
@@ -48,7 +84,7 @@ export default function LoginPage() {
                         <input
                             type="text"
                             id="username"
-                            className="w-full border-gray-300 border rounded-md p-2 mt-1 focus:outline-none focus:ring focus:border-blue-300"
+                            className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                             placeholder="Enter your username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
@@ -61,7 +97,7 @@ export default function LoginPage() {
                         <input
                             type="password"
                             id="password"
-                            className="w-full border-gray-300 border rounded-md p-2 mt-1 focus:outline-none focus:ring focus:border-blue-300"
+                            className="w-full p-2 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                             placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -69,7 +105,7 @@ export default function LoginPage() {
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-blue-500 text-white rounded-md py-2 hover:bg-blue-600 transition duration-300"
+                        className="w-full py-2 text-white transition duration-300 bg-blue-500 rounded-md hover:bg-blue-600"
                     >
                         Login
                     </button>

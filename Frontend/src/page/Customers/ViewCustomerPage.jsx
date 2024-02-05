@@ -20,10 +20,17 @@ function ViewCustomerPage() {
 
     const [showContacts,setShowContacts] = useState(false);
 
+    let storedToken = localStorage.getItem('token');
+
+
     useEffect(() => {
         async function fetchCustomerDetails() {
             try {
-                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`);
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setCustomerDetails(data);
@@ -36,7 +43,7 @@ function ViewCustomerPage() {
         }
 
         fetchCustomerDetails();
-    }, [customerId]);
+    }, [customerId, storedToken]);
 
     const toggleContacts = () => {
         setShowContacts((prevShowContacts) => !prevShowContacts);

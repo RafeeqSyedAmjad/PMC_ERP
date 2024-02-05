@@ -62,6 +62,9 @@ function AddCustomerPage() {
     return requiredFields.every((field) => customerDetails[field].trim() !== "");
   };
 
+  let storedToken = localStorage.getItem('token');
+
+
 
   const handleAddCustomer = () => {
     if (isFormValid()) {
@@ -92,6 +95,8 @@ function AddCustomerPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storedToken}`,
+
           // Add any other headers if needed
         },
         body: JSON.stringify(postData),

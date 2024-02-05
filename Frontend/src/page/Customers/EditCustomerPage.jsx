@@ -21,10 +21,17 @@ function EditCustomerPage() {
         contacts: [],
     });
 
+    let storedToken = localStorage.getItem('token');
+
+
     useEffect(() => {
         async function fetchCustomerDetails() {
             try {
-                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`);
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     // Set an initial value for customerType only if it is null or empty
@@ -44,7 +51,7 @@ function EditCustomerPage() {
         }
 
         fetchCustomerDetails();
-    }, [customerId]);
+    }, [customerId, storedToken, customerDetails]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -78,6 +85,8 @@ function EditCustomerPage() {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+
                 },
                 body: JSON.stringify(customerDetails),
             })

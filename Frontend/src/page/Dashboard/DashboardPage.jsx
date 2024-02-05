@@ -22,17 +22,39 @@ function DashboardPage() {
     navigate(path)
   }
 
-  useEffect(()=> {
-    const apiUrl = `https://pmcsaudi-uat.smaftco.com:3083/api/dashboard/stats/`;
-    fetch(apiUrl)
-    .then(response => response.json())
-    .then(stats => {
-      setDashboardStats(stats);
-    })
-    .catch(error => {
-      toast.error('Error fetching Dashboard Stats', error);
-    })
-  },[])
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        let storedToken = localStorage.getItem('token');
+
+        if (!storedToken) {
+          console.error("Token not available in local storage. Please log in");
+          navigate("/login");
+          return;
+        }
+
+        const apiUrl = `https://pmcsaudi-uat.smaftco.com:3083/api/dashboard/stats/`;
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `Bearer ${storedToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const stats = await response.json();
+        setDashboardStats(stats);
+      } catch (error) {
+        console.error("Error fetching Dashboard Stats", error);
+        toast.error("Error fetching Dashboard Stats", error);
+      }
+    };
+
+    fetchData();
+  }, [navigate]);
+
 
 
   return (

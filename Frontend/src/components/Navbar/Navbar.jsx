@@ -9,21 +9,27 @@ import Button from './Button';
 import { CgMenu } from "react-icons/cg";
 import { useState } from 'react';
 import { MdClose } from "react-icons/md";
+import { useRecoilState } from 'recoil';
+import { isAuthenticatedState, tokenState } from '@/atoms/authState';
 
 export default function Navbar() {
    
     const [open,setOpen] = useState(false)
-    // const isAuthenticated = useRecoilValue(isAuthenticatedState);
-    // const location = useLocation();
+    const [isAuthenticated, setIsAuthenticated] = useRecoilState(isAuthenticatedState); // eslint-disable-line no-unused-vars
+    const [token, setToken] = useRecoilState(tokenState); // eslint-disable-line no-unused-vars
 
-    // if(!isAuthenticated || location.pathname === '/login'){
-    //     return null;
-    // }
 
     const Navigate = useNavigate();
 
     const handleLogout = () => {
         // Perform any logout logic here
+        // / Clear local storage and update Recoil state on logout
+        localStorage.removeItem('token');
+
+        // Update Recoil state
+        setIsAuthenticated(false);
+
+        setToken(null)
 
         // Redirect to the login page
         Navigate('/login');

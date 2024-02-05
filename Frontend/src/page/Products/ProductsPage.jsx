@@ -16,6 +16,9 @@ function ProductsPage() {
         ascending: true,
     })
 
+    let storedToken = localStorage.getItem('token');
+
+
     //delete Button
     const handleDelete = async (productId) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this product?');
@@ -26,6 +29,8 @@ function ProductsPage() {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${storedToken}`,
+
                     },
                 });
                 console.log(response)
@@ -45,7 +50,11 @@ function ProductsPage() {
     useEffect(() => {
         async function fetchProducts() {
             try {
-                const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/products/');
+                const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/products/',{
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+                    }, 
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setProducts(data);
@@ -58,7 +67,7 @@ function ProductsPage() {
         }
 
         fetchProducts();
-    }, []);
+    }, [storedToken]);
 
     const applyFilters = () => {
         let filteredBySearch = products.filter((product) => {

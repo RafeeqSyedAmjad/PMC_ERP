@@ -13,13 +13,16 @@ function QuotationsPage() {
         column: '',
         ascending: true,
     });
-
-    
+    let storedToken = localStorage.getItem('token');
 
     useEffect(() => {
         async function fetchQuotations() {
             try {
-                const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/quotation_calculations/');
+                const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/quotation_calculations/',{
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`,
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setQuotations(data);
@@ -32,7 +35,7 @@ function QuotationsPage() {
         }
 
         fetchQuotations();
-    }, []);
+    }, [storedToken]);
 
     
 

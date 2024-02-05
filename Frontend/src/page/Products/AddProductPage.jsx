@@ -119,6 +119,9 @@ function AddProductPage() {
     return requiredFields.every((field) => productDetails[field].trim() !== "");
   };
 
+  let storedToken = localStorage.getItem('token');
+
+
   const handleAddProduct = () => {
     if (isFormValid()) {
       // Prepare data for POST request
@@ -138,6 +141,9 @@ function AddProductPage() {
       fetch("https://pmcsaudi-uat.smaftco.com:3083/api/products/", {
         method: "POST",
         body: formData,
+        headers: {
+          'Authorization': `Bearer ${storedToken}`,
+        },
       })
         .then((response) => response.json())
         .then((data) => {

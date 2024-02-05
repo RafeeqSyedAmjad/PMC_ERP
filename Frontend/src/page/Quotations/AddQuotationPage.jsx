@@ -41,7 +41,7 @@ function AddQuotationPage() {
     const [grandTotalPriceWithVat, setGrandTotalPriceWithVat] = useState(0);
     const [grandTotalVatAmount, setGrandTotalVatAmount] = useState(0);
     const [additionalDiscount, setAdditionalDiscount] = useState(0);
-    const [AfterAdditionalDiscount,setAfterAdditonalDiscount] = useState(0);
+    const [AfterAdditionalDiscount, setAfterAdditonalDiscount] = useState(0); // eslint-disable-line no-unused-vars
 
     //Preview
     const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);

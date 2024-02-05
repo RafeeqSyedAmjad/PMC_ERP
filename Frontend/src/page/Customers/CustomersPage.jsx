@@ -16,6 +16,9 @@ function CustomersPage() {
     const [currentPage,setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
+    let storedToken = localStorage.getItem('token');
+
+
     //delete Button
     const handleDelete = async (customerId) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this customer?');
@@ -26,6 +29,7 @@ function CustomersPage() {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${storedToken}`,
                     },
                 });
 
@@ -45,7 +49,11 @@ function CustomersPage() {
     useEffect(() => {
         async function fetchCustomers() {
             try {
-                const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/customers/');
+                const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/customers/',{
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+                    }, 
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setCustomers(data);
@@ -58,7 +66,7 @@ function CustomersPage() {
         }
 
         fetchCustomers();
-    }, []);
+    }, [storedToken]);
 
     
 
@@ -180,7 +188,7 @@ function CustomersPage() {
                                         <Link to={`/customers/view/${customer.id}/`} className="" title='View'>
                                             <CiViewBoard />
                                         </Link>
-                                        <Link to={`/customers/quotes/${customer.id}`} className="" title="Quotes">
+                                        <Link to={``} className="" title="Quotes">
                                             <BsBlockquoteRight />
                                         </Link>
                                     </td>

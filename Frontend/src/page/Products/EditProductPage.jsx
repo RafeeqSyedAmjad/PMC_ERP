@@ -32,10 +32,17 @@ function EditProductPage() {
     specification: '',
   });
 
+  let storedToken = localStorage.getItem('token');
+
+
   useEffect(() => {
     async function fetchProductDetails() {
       try {
-        const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${productId}/`);
+        const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${productId}/`, {
+          headers: {
+            'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+          },
+        });
         if (response.ok) {
           const data = await response.json();
           setProductDetails(data);
@@ -48,7 +55,7 @@ function EditProductPage() {
     }
 
     fetchProductDetails();
-  }, [productId]);
+  }, [productId, storedToken]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,6 +72,7 @@ function EditProductPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storedToken}`,
         },
         body: JSON.stringify(productDetails),
       });

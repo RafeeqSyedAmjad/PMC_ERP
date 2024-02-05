@@ -10,13 +10,21 @@ function ViewProductPage() {
     });
     const [isFullscreen, setIsFullscreen] = useState(false);
 
+    let storedToken = localStorage.getItem('token');
+
+
     useEffect(() => {
         async function fetchProductDetails() {
             try {
-                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${productId}/`);
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${productId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setProductDetails(data);
+                    console.log(productDetails)
                 } else {
                     throw new Error('Failed to fetch product details');
                 }
@@ -26,7 +34,7 @@ function ViewProductPage() {
         }
 
         fetchProductDetails();
-    }, [productId]);
+    }, [productId, storedToken, productDetails]);
 
     return (
         <div>

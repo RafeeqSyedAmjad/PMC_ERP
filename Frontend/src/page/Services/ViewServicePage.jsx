@@ -13,11 +13,17 @@ function ViewServicePage() {
         time:'',
         price:'',
     })
+    let storedToken = localStorage.getItem('token');
+
 
     useEffect(() => {
         async function fetchServiceDetails() {
             try {
-                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/services/${serviceId}/`);
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/services/${serviceId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in Headers
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setServiceDetails(data);
@@ -30,7 +36,7 @@ function ViewServicePage() {
         }
 
         fetchServiceDetails();
-    }, [serviceId]);
+    }, [serviceId, storedToken]);
 
   return (
     <div>

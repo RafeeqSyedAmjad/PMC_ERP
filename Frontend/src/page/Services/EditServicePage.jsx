@@ -1,5 +1,5 @@
 import  { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from '../../components/ComponentExport';
 import toast from 'react-hot-toast';
 
@@ -13,10 +13,18 @@ function EditServicePage() {
         // Add other service details as needed
     });
 
+    const Navigate = useNavigate();
+
+    let storedToken = localStorage.getItem('token');
+
     useEffect(() => {
         async function fetchServiceDetails() {
             try {
-                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/services/${serviceId}/`);
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/services/${serviceId}/`, {
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in Headers
+                    },
+                });
                 if (response.ok) {
                     const data = await response.json();
                     setServiceDetails(data);
@@ -29,7 +37,7 @@ function EditServicePage() {
         }
 
         fetchServiceDetails();
-    }, [serviceId]);
+    }, [serviceId, storedToken]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -39,12 +47,16 @@ function EditServicePage() {
         }));
     };
 
+
+
     const handleUpdateService = async () => {
         try {
             const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/services/${serviceId}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${storedToken}`, // Include Bearer token in Headers
+
                 },
                 body: JSON.stringify(serviceDetails),
             });
@@ -53,6 +65,7 @@ function EditServicePage() {
                 console.log('Service updated successfully!');
                 toast.success('Successfully Updated!')
                 // Redirect or handle navigation as needed
+                Navigate('/services')
             } else {
                 // throw new Error('Failed to update service');
                 toast.error('Failed to update')

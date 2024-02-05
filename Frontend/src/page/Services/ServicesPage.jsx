@@ -15,7 +15,11 @@ function ServicesPage() {
     ascending: true,
   });
 
+  let storedToken = localStorage.getItem('token');
+
+
   const handleDelete = async(serviceId) => {
+    console.log('Deleting service with ID:', serviceId);
     const confirmDelete = window.confirm('Are you sure you want to delete this service?');
     if (confirmDelete) {
       try {
@@ -24,6 +28,8 @@ function ServicesPage() {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${storedToken}`,
+
           },
         });
 
@@ -42,7 +48,11 @@ function ServicesPage() {
   useEffect(() => {
     async function fetchServices() {
       try {
-        const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/services/');
+        const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/services/', {
+          headers: {
+            'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+          },
+        });
         if (response.ok) {
           const data = await response.json();
           setServices(data);
@@ -55,7 +65,7 @@ function ServicesPage() {
     }
 
     fetchServices();
-  }, []);
+  }, [storedToken]);
 
   const applyFilters = () => {
     let filteredServices = services.filter((service) => {

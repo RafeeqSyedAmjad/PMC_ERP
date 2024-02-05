@@ -35,11 +35,16 @@ function AddServicePage() {
       price: price,
     };
 
+    let storedToken = localStorage.getItem('token');
+
+
     // Assuming you have an API endpoint for creating services
     fetch('https://pmcsaudi-uat.smaftco.com:3083/api/services/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${storedToken}`,
+
         // Add any other headers if needed
       },
       body: JSON.stringify(data),
