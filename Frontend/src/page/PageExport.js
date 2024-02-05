@@ -14,5 +14,6 @@ import AddQuotationPage from "./Quotations/AddQuotationPage";
 import AddCustomerPage from "./Customers/AddCustomerPage";
 import AddProductPage from "./Products/AddProductPage";
 import AddServicePage from "./Services/AddServicePage";
+import LabourRatePage from "./Configurations/LabourRatePage";
 
-export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddQuotationPage, AddCustomerPage,AddServicePage,AddProductPage };
+export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddQuotationPage, AddCustomerPage,AddServicePage,AddProductPage ,LabourRatePage};

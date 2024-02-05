@@ -1,5 +1,5 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import { AddQuotationPage, CustomersPage, DashboardPage, EditCustomerPage, EditProductPage, EditServicePage, LoginPage, ProductsPage, QuotationsPage, ServicesPage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddCustomerPage, AddProductPage, AddServicePage } from "../page/PageExport";
+import { AddQuotationPage, CustomersPage, DashboardPage, EditCustomerPage, EditProductPage, EditServicePage, LoginPage, ProductsPage, QuotationsPage, ServicesPage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddCustomerPage, AddProductPage, AddServicePage, LabourRatePage } from "../page/PageExport";
 import { useEffect } from "react";
 
 
@@ -34,6 +34,7 @@ export const AppRoutes = () => {
             <Route path='/services/add' element={<AddServicePage />} />
             <Route path='/quotations' element={<QuotationsPage />} />
             <Route path = '/quotations/add' element = {<AddQuotationPage/>}/>
+            <Route path= '/configuration/labourRates' element={<LabourRatePage/>}/>
             
 
             {/* <Route path = '/quotations/preview/:quotationId' element={<PreviewQuotationPage/>}/> */}
