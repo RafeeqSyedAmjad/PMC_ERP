@@ -50,9 +50,17 @@ function AddQuotationPage() {
     const [isDocumentModalOpen, setDocumentModalOpen] = useState(false);
     const [selectedDocumentType, setSelectedDocumentType] = useState(null);
 
+    let storedToken = localStorage.getItem('token');
+
+
+    
     useEffect(() => {
         // Fetch services from the API
-        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/services/')
+        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/services/', {
+            headers: {
+                'Authorization': `Bearer ${storedToken}`,
+            },
+        })
             .then(response => response.json())
             .then(data => {
                 // Extract type_of_service values from the response
@@ -62,15 +70,19 @@ function AddQuotationPage() {
                 setServiceOptions(uniqueServiceTypes);
             })
             .catch(error => console.error('Error fetching services:', error));
-    }, []);
+    }, [storedToken]);
 
     useEffect(() => {
         // Fetch customers from the API
-        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/customer-product-service/')
+        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/customer-product-service/',{
+            headers: {
+                'Authorization': `Bearer ${storedToken}`,
+            },
+        })
             .then(response => response.json())
             .then(data => setCustomers(data.customers))
             .catch(error => console.error('Error fetching customers:', error));
-    }, []);
+    }, [storedToken]);
 
     // Set a default customer when the component mounts
     useEffect(() => {
@@ -90,7 +102,11 @@ function AddQuotationPage() {
             return;
         }
 
-        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/products/')
+        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/products/',{
+            headers: {
+                'Authorization': `Bearer ${storedToken}`,
+            },
+        })
             .then(response => response.json())
             .then(data => setSearchedProducts(filterProducts(data, searchKeyword)))
             .catch(error => console.error('Error fetching products:', error));
@@ -207,7 +223,7 @@ function AddQuotationPage() {
 
     const updateServiceTotals = () => {
 
-        console.log('is tihis running')
+        console.log('is this running')
         let totalServicePrice = 0;
         let totalDiscountPercentage = 0;
 

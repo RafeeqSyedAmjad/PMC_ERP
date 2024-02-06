@@ -11,8 +11,14 @@ const NavLinks = () => {
     const handleLinkClick = (link) => {
         // Handle click logic here
         if (link === 'Labour Rate') {
-            Navigate('/configuration/labourRates');
-        } else {
+            Navigate('/configurations/labourrates');
+        } else if (link === 'Product Category') {
+            Navigate('/masters/productcategory');
+        }
+        else if (link === 'Country of Origin'){
+            Navigate('/masters/countryoforigin');
+        }
+        else {
             // Handle other links
             Navigate(link);
         }
