@@ -13,7 +13,7 @@ function InvoicingPage() {
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  });
 
   const fetchInvoices = async () => {
     try {
@@ -90,7 +90,7 @@ function InvoicingPage() {
                 <th className="px-6 py-3 text-left">ID</th>
                 <th className="px-6 py-3 text-left">Customers</th>
                 <th className="px-6 py-3 text-left">Quotations</th>
-                <th className="px-6 py-3 text-left">URL's</th>
+                <th className="px-6 py-3 text-left">URL&apos;s</th>
               </tr>
             </thead>
             <tbody className="text-gray-600">
