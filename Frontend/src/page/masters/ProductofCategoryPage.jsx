@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navbar } from '../../components/ComponentExport';
 import { IoTrashBin } from 'react-icons/io5';
 import { RxCross2 } from "react-icons/rx";
+import toast from 'react-hot-toast';
 
 function ProductofCategoryPage() {
   const [categories, setCategories] = useState([]);
@@ -51,7 +52,7 @@ function ProductofCategoryPage() {
     const confirmDelete = window.confirm('Are you sure you want to delete this category?');
     if (confirmDelete) {
       try {
-        const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/product-categories/${categoryId}`, {
+        const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/product-categories/${categoryId}/`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -61,8 +62,9 @@ function ProductofCategoryPage() {
         if (response.ok) {
           const updatedCategories = categories.filter((category) => category.id !== categoryId);
           setCategories(updatedCategories);
+          toast.success('Category Deleted Sucessfully')
         } else {
-          throw new Error('Failed to delete category');
+          toast.error('Failed to delete category');
         }
       } catch (error) {
         console.error('Error deleting category:', error);
@@ -89,8 +91,10 @@ function ProductofCategoryPage() {
         const data = await response.json();
         setCategories([...categories, data]); // Add the new category to the state
         closeModal(); // Close the modal after successful creation
+        toast.success('Category Created Sucessfully')
       } else {
-        throw new Error('Failed to create category');
+        // throw new Error('Failed to create category');
+        toast.error('Failed to Create Category')
       }
     } catch (error) {
       console.error('Error creating category:', error);
