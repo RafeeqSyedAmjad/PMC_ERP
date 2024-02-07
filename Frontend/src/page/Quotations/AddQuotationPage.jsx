@@ -52,8 +52,6 @@ function AddQuotationPage() {
 
     let storedToken = localStorage.getItem('token');
 
-
-    
     useEffect(() => {
         // Fetch services from the API
         fetch('https://pmcsaudi-uat.smaftco.com:3083/api/services/', {
@@ -74,7 +72,7 @@ function AddQuotationPage() {
 
     useEffect(() => {
         // Fetch customers from the API
-        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/customer-product-service/',{
+        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/customer-product-service/', {
             headers: {
                 'Authorization': `Bearer ${storedToken}`,
             },
@@ -102,7 +100,7 @@ function AddQuotationPage() {
             return;
         }
 
-        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/products/',{
+        fetch('https://pmcsaudi-uat.smaftco.com:3083/api/products/', {
             headers: {
                 'Authorization': `Bearer ${storedToken}`,
             },
@@ -248,7 +246,7 @@ function AddQuotationPage() {
         setServicePriceWithVat(totalServicePriceWithVat);
     };
 
-    
+
     const handleAddServiceClick = () => {
         setServiceData([...serviceData, { serviceType: '', description: '', time: '', discount: '', total: '' }]);
         setShowServiceTable(true);
@@ -277,7 +275,7 @@ function AddQuotationPage() {
         updateServiceTotals();
     };
 
-    
+
 
     const handleServiceDiscountChange = (index, discount) => {
         const updatedServiceData = [...serviceData];
@@ -387,7 +385,7 @@ function AddQuotationPage() {
 
 
     //Document Type and Send
-    
+
     // Function to open the document modal
     const openDocumentModal = () => {
         setDocumentModalOpen(true);
@@ -407,7 +405,7 @@ function AddQuotationPage() {
     const sendEmailAndGeneratePdf = () => {
         // Add your logic for sending email based on selectedDocumentType
         // ...
-        
+
 
         // Show a Windows popup with the desired message
         window.alert("Quotation created successfully");
@@ -783,7 +781,7 @@ function AddQuotationPage() {
                     {isDocumentModalOpen && (
                         <div
                             className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
-                            
+
                         >
                             <div className="w-64 p-5 bg-white rounded-lg">
                                 <div className='flex mb-4'>
@@ -795,8 +793,8 @@ function AddQuotationPage() {
                                         </svg>
                                         <span className="sr-only">Close modal</span>
                                     </button>
-                               </div>
-                                
+                                </div>
+
 
                                 <div className="flex items-center mb-4">
                                     <input
@@ -859,7 +857,7 @@ function AddQuotationPage() {
                 </div>
 
 
-                
+
 
 
                 {/* Preview Modal */}

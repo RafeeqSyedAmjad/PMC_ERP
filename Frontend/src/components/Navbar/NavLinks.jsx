@@ -15,7 +15,7 @@ const NavLinks = () => {
         } else if (link === 'Product Category') {
             Navigate('/masters/productcategory');
         }
-        else if (link === 'Country of Origin'){
+        else if (link === 'Country of Origin') {
             Navigate('/masters/countryoforigin');
         }
         else {

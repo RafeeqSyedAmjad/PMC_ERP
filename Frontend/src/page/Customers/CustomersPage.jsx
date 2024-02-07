@@ -1,71 +1,114 @@
 import { useEffect, useState } from 'react';
-import { Navbar } from '../../components/ComponentExport';
-import { IoTrashBin } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
+import { Navbar } from '../../components/ComponentExport';
+import { FaRegEdit } from 'react-icons/fa';
+import { IoTrashBin } from 'react-icons/io5';
+import { CiViewBoard } from 'react-icons/ci';
+import { BsBlockquoteRight } from 'react-icons/bs';
 
-function ProductofCategoryPage() {
-    const [categories, setCategories] = useState([]);
+function CustomersPage() {
+    const [customers, setCustomers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [sortOrder, setSortOrder] = useState({
+        column:'',
+        ascending:true,
+    })
+    const [currentPage,setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
 
     let storedToken = localStorage.getItem('token');
 
-    useEffect(() => {
-        async function fetchCategories() {
-            try {
-                const response = await fetch('https://your-api-url.com/categories', {
-                    headers: {
-                        'Authorization': `Bearer ${storedToken}`,
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setCategories(data);
-                } else {
-                    throw new Error('Failed to fetch categories');
-                }
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        }
 
-        fetchCategories();
-    }, [storedToken]);
-
-    const handleDelete = async (categoryId) => {
-        const confirmDelete = window.confirm('Are you sure you want to delete this category?');
+    //delete Button
+    const handleDelete = async (customerId) => {
+        const confirmDelete = window.confirm('Are you sure you want to delete this customer?');
         if (confirmDelete) {
             try {
-                const response = await fetch(`https://your-api-url.com/categories/${categoryId}`, {
+                // Delete the product from the API
+                const response = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${storedToken}`,
                     },
                 });
+
                 if (response.ok) {
-                    const updatedCategories = categories.filter((category) => category.id !== categoryId);
-                    setCategories(updatedCategories);
+                    // Filter out the deleted product from the local state
+                    const updatedCustomers = customers.filter((product) => product.id !== customerId);
+                    setCustomers(updatedCustomers); // Update the state with the new products array
                 } else {
-                    throw new Error('Failed to delete category');
+                    throw new Error('Failed to delete customer');
                 }
             } catch (error) {
-                console.error('Error deleting category:', error);
+                console.error('Error deleting customer:', error);
             }
         }
     };
 
-    const filteredCategories = categories.filter((category) =>
-        category.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    useEffect(() => {
+        async function fetchCustomers() {
+            try {
+                const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/customers/',{
+                    headers: {
+                        'Authorization': `Bearer ${storedToken}`, // Include Bearer token in headers
+                    }, 
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setCustomers(data);
+                } else {
+                    throw new Error('Failed to fetch customers');
+                }
+            } catch (error) {
+                console.error('Error fetching customers:', error);
+            }
+        }
 
-    // Pagination logic
+        fetchCustomers();
+    }, [storedToken]);
+
+    
+
+    const filteredCustomers = customers.filter((customer)=>{
+        // Filter based on the search term for customer ID, name , email or phone
+        return (
+            customer.id.toString().includes(searchTerm) || 
+            customer.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            customer.customerEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            customer.customerPhone.includes(searchTerm)
+        )
+    })
+
+    const handleSort = (column) =>{
+        setSortOrder({
+            column,
+            ascending:sortOrder.column === column ? !sortOrder.ascending: true,
+    
+        })
+
+        const sortedCustomers = [...customers].sort((a,b) => {
+            const valueA = column === 'id' ? a[column] : a[column].toLowerCase();
+            const valueB = column === 'id' ? b[column] : b[column].toLowerCase();
+
+            if (valueA < valueB){
+                return sortOrder.ascending ? -1 : 1;
+            }
+            if (valueA > valueB){
+                return sortOrder.ascending ? 1:-1;
+            }
+            return 0;
+        })
+        setCustomers(sortedCustomers)
+    }
+
+    // Calculate total pages
+    const totalPages = Math.ceil(filteredCustomers.length / itemsPerPage);
+
+    //Get Current items for display
     const indexofLastItem = currentPage * itemsPerPage;
     const indexofFirstItem = indexofLastItem - itemsPerPage;
-    const currentItems = filteredCategories.slice(indexofFirstItem, indexofLastItem);
-
-    const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+    const currentItems = filteredCustomers.slice(indexofFirstItem, indexofLastItem);
 
     const nextPage = () => {
         setCurrentPage((prevPage) => Math.min(prevPage + 1, totalPages));
@@ -96,69 +139,80 @@ function ProductofCategoryPage() {
 
     return (
         <div>
-            <Navbar />
+            <Navbar/>
             <div className="container px-4 py-8 mx-auto overflow-x-auto">
                 <div className="flex justify-end mb-4">
-                    <Link
-                        to="/categories/add"
-                        className="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-                    >
-                        Add Category
+                    <Link to="/customers/add" className="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                        Add Customer
                     </Link>
                 </div>
-                <div className="mb-4">
-                    <input
-                        type="text"
-                        placeholder="Search by Category Name"
+                <div className='mb-4'>
+                    <input type = "text" placeholder = "Search by ID, Company Name, Email, or Mobile"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded-md"
+                        className='w-full p-2 border border-gray-300 rounded-md'
                     />
                 </div>
-                <div className="overflow-x-auto table-wrap">
+                <div className='overflow-x-auto table-wrap'>
                     <table className="w-full table-auto table-responsive">
                         <thead>
                             <tr className="text-gray-700 uppercase bg-gray-200">
-                                <th className="px-6 py-3 text-left">Category Name</th>
-                                <th className="px-6 py-3 text-left">Category Description</th>
-                                <th className="px-6 py-3 text-center">Delete</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('id')}>ID {sortOrder.column === 'id' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('customerName')}>
+                                    Company Name{' '}
+                                    {sortOrder.column === 'customerName' && (sortOrder.ascending ? '↑' : '↓')}
+                                </th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('customerEmail')}> Email {sortOrder.column === 'customerEmail' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-left" onClick={() => handleSort('customerPhone')}>Mobile {sortOrder.column === 'customerPhone' && (sortOrder.ascending ? '↑' : '↓')}</th>
+                                <th className="px-6 py-3 text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="text-gray-600">
-                            {currentItems.map((category) => (
-                                <tr key={category.id} className="border-b border-gray-200 hover:bg-gray-100">
-                                    <td className="px-6 py-3">{category.categoryName}</td>
-                                    <td className="px-6 py-3">{category.categoryDescription}</td>
-                                    <td className="flex items-center justify-center px-6 py-3">
+                            {currentItems.map((customer) => (
+                                <tr key={customer.id} className="border-b border-gray-200 hover:bg-gray-100">
+                                    <td className="px-6 py-3">{customer.id}</td>
+                                    <td className="px-6 py-3">{customer.customerName}</td>
+                                    <td className="px-6 py-3">{customer.customerEmail}</td>
+                                    <td className="px-6 py-3">{customer.customerPhone}</td>
+                                    <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
+                                        <Link to={`/customers/edit/${customer.id}/`} className="text-blue-400" title='Edit Details'>
+                                            <FaRegEdit />
+                                        </Link>
                                         <button
-                                            onClick={() => handleDelete(category.id)}
+                                            onClick={() => handleDelete(customer.id)}
                                             className="text-red-400"
-                                            title="Delete"
+                                            title='Delete'
                                         >
                                             <IoTrashBin />
                                         </button>
+                                        <Link to={`/customers/view/${customer.id}/`} className="" title='View'>
+                                            <CiViewBoard />
+                                        </Link>
+                                        <Link to={``} className="" title="Quotes">
+                                            <BsBlockquoteRight />
+                                        </Link>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
+                
             </div>
-            <div className="flex items-center justify-center my-4 space-x-2">
-                <button
-                    onClick={prevPage}
-                    disabled={currentPage === 1}
+            <div className = "flex items-center justify-center my-4 space-x-2">
+                <button onClick={prevPage}
+                    disabled = {currentPage === 1}
                     className={`px-3 py-1 rounded-full 
                         ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-default' : 'bg-blue-500 text-white'}
                         hover:bg-blue-600 focus:outline-none focus:bg-blue-600`}
                 >
                     Prev
+
                 </button>
                 {renderPageNumbers()}
-                <button
-                    onClick={nextPage}
-                    disabled={currentPage === totalPages}
-                    className={`px-3 py-1 rounded-full 
+                <button onClick = {nextPage}
+                        disabled = {currentPage == totalPages}
+                        className={`px-3 py-1 rounded-full 
                         ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-default' : 'bg-blue-500 text-white'}
                         hover:bg-blue-600 focus:outline-none focus:bg-blue-600`}
                 >
@@ -169,4 +223,4 @@ function ProductofCategoryPage() {
     );
 }
 
-export default ProductofCategoryPage;
+export default CustomersPage;
