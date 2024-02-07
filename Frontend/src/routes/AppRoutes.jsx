@@ -1,5 +1,5 @@
 import { Route, Routes, useLocation } from "react-router-dom";
-import { AddQuotationPage, CustomersPage, DashboardPage, EditCustomerPage, EditProductPage, EditServicePage, LoginPage, ProductsPage, QuotationsPage, ServicesPage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddCustomerPage, AddProductPage, AddServicePage, LabourRatePage, ProductofCategoryPage, CountryofOriginPage } from "../page/PageExport";
+import { AddQuotationPage, CustomersPage, DashboardPage, EditCustomerPage, EditProductPage, EditServicePage, LoginPage, ProductsPage, QuotationsPage, ServicesPage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddCustomerPage, AddProductPage, AddServicePage, LabourRatePage, ProductofCategoryPage, CountryofOriginPage, InvoicingPage } from "../page/PageExport";
 import { useEffect } from "react";
 
 
@@ -11,9 +11,14 @@ export const AppRoutes = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Set the document title based on the current route
-    document.title = `PMC - ${location.pathname.replace('/', '')}`;
+
+    // Extract the last part of the pathname
+    const lastPartOfPathname = location.pathname.split('/').pop();
+  
+    // Set the document title based on the last part of the pathname
+    document.title = `${lastPartOfPathname}`;
   }, [location.pathname]);
+  
   return (
 
     <Routes>
@@ -38,6 +43,7 @@ export const AppRoutes = () => {
       <Route path='/configurations/labourrates' element={<LabourRatePage />} />
       <Route path='/masters/productcategory' element={<ProductofCategoryPage />} />
       <Route path='/masters/countryoforigin' element={<CountryofOriginPage />} />
+      <Route path = '/invoicing' element={<InvoicingPage/>} />
 
       {/* <Route path = '/quotations/preview/:quotationId' element={<PreviewQuotationPage/>}/> */}
     </Routes>

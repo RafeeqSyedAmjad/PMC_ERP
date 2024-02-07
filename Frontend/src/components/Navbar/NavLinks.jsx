@@ -30,7 +30,7 @@ const NavLinks = () => {
         <>
             {links.map((link, linkIndex) => (
                 <div key={linkIndex}>
-                    <div className="px-3 text-left md:cursor-pointer group">
+                    <div className="text-left md:cursor-pointer group">
                         <h1
                             className="flex items-center justify-between pr-5 text-lg font-bold text-black py-7 md:pr-0 group"
                             onClick={() => {
@@ -48,7 +48,7 @@ const NavLinks = () => {
                         </h1>
                         {link.submenu && (
                             <div>
-                                <div className={`absolute hidden top-20 group-hover:md:block hover:md:block`}>
+                                <div className={`absolute hidden top-20 group-hover:md:block hover:md:block hover:cursor-pointer`}>
                                     <div className="py-3">
                                         <div className="absolute w-4 h-4 mt-1 rotate-45 bg-[#B4D4FF] left-3"></div>
                                     </div>
@@ -56,7 +56,7 @@ const NavLinks = () => {
                                         {link.sublinks.map((mysublinks, sublinkIndex) => (
                                             <div key={sublinkIndex}>
                                                 <h1
-                                                    className="text-lg font-bold text-black hover:text-white"
+                                                    className="text-lg font-bold text-black hover:text-white hover:cursor-pointer`"
                                                     onClick={() => handleLinkClick(mysublinks.Head)}
                                                 >
                                                     {mysublinks.Head}
@@ -64,7 +64,7 @@ const NavLinks = () => {
                                                 {mysublinks.sublink && (
                                                     <ul>
                                                         {mysublinks.sublink.map((slink, slinkIndex) => (
-                                                            <li key={slinkIndex} className="text-lg font-bold text-black my-2.5">
+                                                            <li key={slinkIndex} className="text-lg font-bold text-black my-2.5 hover:cursor-pointer`">
                                                                 <Link to={slink.link} className="hover:text-[#EEF5FF]">
                                                                     {slink.name}
                                                                 </Link>

@@ -4,6 +4,7 @@ import { FaRegEdit } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { IoTrashBin } from 'react-icons/io5';
 import { CiViewBoard } from 'react-icons/ci';
+import toast from 'react-hot-toast';
 
 function ServicesPage() {
   const [services, setServices] = useState([]);
@@ -36,8 +37,10 @@ function ServicesPage() {
         if (response.ok) {
           const updatedServices = services.filter((service) => service.id !== serviceId);
           setServices(updatedServices); 
+          toast.success('Service Deleted Sucessfully')
         } else {
-          throw new Error('Failed to delete service');
+          toast.error('Failed to delete service');
+
         }
       } catch (error) {
         console.error('Error deleting service:', error);
@@ -172,8 +175,9 @@ function ServicesPage() {
               </tr>
             </thead>
             <tbody className="text-gray-600">
-              {currentItems.map((service) => (
-                <tr key={service.id} className="border-b border-gray-200 hover:bg-gray-100">
+              {currentItems.map((service) => {
+                console.log(currentItems)
+                return (<tr key={service.id} className="border-b border-gray-200 hover:bg-gray-100">
                   <td className="px-6 py-3">{service.id}</td>
                   <td className="px-6 py-3">{service.type_of_service}</td>
                   <td className="px-6 py-3">{service.time}</td>
@@ -194,8 +198,9 @@ function ServicesPage() {
                       <CiViewBoard />
                     </Link>
                   </td>
-                </tr>
-              ))}
+                </tr>)
+                
+              })}
             </tbody>
           </table>
         </div>

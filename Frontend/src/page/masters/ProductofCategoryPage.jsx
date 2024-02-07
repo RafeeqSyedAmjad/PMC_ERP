@@ -205,21 +205,23 @@ function ProductofCategoryPage() {
               </tr>
             </thead>
             <tbody className="text-gray-600">
-              {currentItems.map((category) => (
-                <tr key={category.id} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="px-6 py-3">{category.categoryName}</td>
-                  <td className="px-6 py-3">{category.categoryDescription}</td>
-                  <td className="flex items-center justify-center px-6 py-3">
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      className="text-red-400"
-                      title="Delete"
-                    >
-                      <IoTrashBin />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {currentItems.map((category) => {
+              return (
+              <tr key={category.id} className="border-b border-gray-200 hover:bg-gray-100">
+                <td className="px-6 py-3">{category.categoryName}</td>
+                <td className="px-6 py-3">{category.categoryDescription}</td>
+                <td className="flex items-center justify-center px-6 py-3">
+                  <button
+                      onClick={() => handleDelete(category.category_id)}
+                    className="text-red-400"
+                    title="Delete"
+                  >
+                    <IoTrashBin />
+                  </button>
+                </td>
+              </tr>
+              )   
+            })}
             </tbody>
           </table>
         </div>

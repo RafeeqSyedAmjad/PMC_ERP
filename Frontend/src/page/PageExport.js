@@ -17,5 +17,6 @@ import AddServicePage from "./Services/AddServicePage";
 import LabourRatePage from "./Configurations/LabourRatePage";
 import ProductofCategoryPage from "./masters/ProductofCategoryPage";
 import CountryofOriginPage from "./masters/CountryofOriginPage";
+import InvoicingPage from "./Invoicing/InvoicingPage";
 
-export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddQuotationPage, AddCustomerPage, AddServicePage, AddProductPage, LabourRatePage, ProductofCategoryPage, CountryofOriginPage };
+export { DashboardPage, LoginPage, CustomersPage, ProductsPage, ServicesPage, QuotationsPage, EditCustomerPage, EditProductPage, EditServicePage, ViewCustomerPage, ViewProductPage, ViewServicePage, AddQuotationPage, AddCustomerPage, AddServicePage, AddProductPage, LabourRatePage, ProductofCategoryPage, CountryofOriginPage, InvoicingPage };

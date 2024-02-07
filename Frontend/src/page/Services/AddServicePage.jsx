@@ -24,6 +24,9 @@ function AddServicePage() {
   const createService = () => {
     const { type_of_service, time, price } = serviceDetails;
 
+
+    // 
+
     if (!type_of_service || !time || !price) {
       toast.error('Please fill all the required fields.');
       return;
@@ -107,7 +110,7 @@ function AddServicePage() {
               Price:
             </label>
             <input
-              type="text"
+              type="number"
               id="price"
               name="price"
               value={serviceDetails.price}
