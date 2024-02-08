@@ -17,11 +17,11 @@ function AddCustomerPage() {
     customerMap: '',
     customerVat: '',
     customerType: 'Retail', // Default value
-    contactName: '',
-    contactMobile: '',
-    contactDesignation: '',
-    contactEmail: '',
+    contacts:[], // Array to store contact details
   });
+
+  // state to manage visibility of contact details fields
+  const [shadowContactFields, setShowContactFields] = useState(false);
 
   // Define required fields
   const requiredFields = [
@@ -69,6 +69,19 @@ function AddCustomerPage() {
   const handleAddCustomer = () => {
     if (isFormValid()) {
       // Prepare data for POST request
+      // Validate mobile number format
+      const mobileNumberRegex = /^\d{10}$/;
+      if (!mobileNumberRegex.test(customerDetails.customerPhone)) {
+        toast.error('Please enter a 10-digit mobile number.');
+        return;
+      }
+
+      // Validate VAT number format
+      const vatNumberRegex = /^\d{15}$/;
+      if (!vatNumberRegex.test(customerDetails.customerVat)){
+        toast.error('Please enter a 15-digit vat number.')
+      }
+      
       const postData = {
         customerName: customerDetails.customerName,
         customerEmail: customerDetails.customerEmail,
@@ -117,6 +130,28 @@ function AddCustomerPage() {
       // Show an indication for required fields that are not filled
       toast.error("You need to fill all the required fields!", toastProps);
     }
+  };
+
+
+  // Function to add contact details
+  const addContact = () => {
+    setShowContactFields(true); // Show the contact details fields
+    setCustomerDetails((prevDetails) => ({
+      ...prevDetails,
+      contacts: [...prevDetails.contacts, {}], // Add an empty object for a new contact
+    }));
+  };
+
+  // Function to handle changes in contact details input fields
+  const handleContactInputChange = (e, index) => {
+    const { name, value } = e.target;
+    console.log(`Updating contact field ${name} with value: ${value}`);
+    const updatedContacts = [...customerDetails.contacts];
+    updatedContacts[index] = { ...updatedContacts[index], [name]: value };
+    setCustomerDetails((prevDetails) => ({
+      ...prevDetails,
+      contacts: updatedContacts,
+    }));
   };
 
 
@@ -177,6 +212,8 @@ function AddCustomerPage() {
                 placeholder={fieldValidation.customerPhone ? '' : 'Please fill this required field'}
                 required
               />
+              <p className="text-gray-500">Please enter a 10-digit mobile number. </p>
+
             </div>
             {/* <div className="mb-4">
             <label htmlFor="customerAddress" className="block text-sm font-medium text-gray-600">
@@ -279,6 +316,7 @@ function AddCustomerPage() {
                 placeholder={fieldValidation.customerVat ? '' : 'Please fill this required field'}
                 required
               />
+              <p className="text-gray-500">Please enter a 15-digit VAT number. </p>
             </div>
             <div className="mb-4">
               <label htmlFor="customerMap" className="text-sm font-medium text-gray-600 ">
@@ -315,79 +353,88 @@ function AddCustomerPage() {
                 <option value="factory">Factory</option>
               </select>
             </div>
-            {/* <button
-            type="button"
-            // onClick={handleAddCustomer}
-            className="w-full px-6 py-3 mb-4 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-          >
-            Add Contact
-          </button> */}
+            
 
-            <div className="mb-4">
-              <label htmlFor="contactName" className="block text-sm font-medium text-gray-600">
-                Contact Name
-              </label>
-              <input
-                type="text"
-                id="contactName"
-                name="contactName"
-                value={customerDetails.contactName}
-                onChange={handleInputChange}
-                className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+            {/* Contact details fields */}
+            {/* Contact details fields */}
+            {shadowContactFields && customerDetails.contacts.map((contact, index) => (
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2" key={index}>
+                <div className="mb-4">
+                  <label htmlFor={`contactName${index}`} className="block text-sm font-medium text-gray-600">
+                    Contact Name
+                  </label>
+                  <input
+                    type="text"
+                    id={`contactName${index}`}
+                    name={`contactName${index}`}
+                    value={contact.contactName || ""}
+                    onChange={(e) => handleContactInputChange(e, index)}
+                    className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor={`contactMobile${index}`} className="block text-sm font-medium text-gray-600">
+                    Contact Mobile Number
+                  </label>
+                  <input
+                    type="tel"
+                    id={`contactMobile${index}`}
+                    name={`contactMobile${index}`}
+                    value={contact.contactMobile || ""}
+                    onChange={(e) => handleContactInputChange(e, index)}
+                    className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor={`contactDesignation${index}`} className="block text-sm font-medium text-gray-600">
+                    Contact Designation
+                  </label>
+                  <input
+                    type="text"
+                    id={`contactDesignation${index}`}
+                    name={`contactDesignation${index}`}
+                    value={contact.contactDesignation || ""}
+                    onChange={(e) => handleContactInputChange(e, index)}
+                    className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor={`contactEmail${index}`} className="block text-sm font-medium text-gray-600">
+                    Contact Email
+                  </label>
+                  <input
+                    type="email"
+                    id={`contactEmail${index}`}
+                    name={`contactEmail${index}`}
+                    value={contact.contactEmail || ""}
+                    onChange={(e) => handleContactInputChange(e, index)}
+                    className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
 
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="contactMobile" className="block text-sm font-medium text-gray-600">
-                Contact Mobile Number
-              </label>
-              <input
-                type="tel"
-                id="contactMobile"
-                name="contactMobile"
-                value={customerDetails.contactMobile}
-                onChange={handleInputChange}
-                className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="contactDesignation" className="block text-sm font-medium text-gray-600">
-                Contact Designation
-              </label>
-              <input
-                type="text"
-                id="contactDesignation"
-                name="contactDesignation"
-                value={customerDetails.contactDesignation}
-                onChange={handleInputChange}
-                className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-600">
-                Contact Email
-              </label>
-              <input
-                type="email"
-                id="contactEmail"
-                name="contactEmail"
-                value={customerDetails.contactEmail}
-                onChange={handleInputChange}
-                className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
-              />
-            </div>
+          <div className="flex justify-between">
+            <button
+              type="button"
+              onClick={addContact}
+              className="w-[48%] px-6 py-3 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+            >
+              Add Contact
+            </button>
 
             <button
               type="button"
               onClick={handleAddCustomer}
               // disabled={!isFormValid()}
-              className="w-auto px-6 py-3 text-center text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+              className="w-[48%] px-6 py-3 text-white bg-green-500 rounded-md hover:bg-green-600 focus:outline-none focus:bg-green-600"
             >
-              Add Customer
+              Submit
             </button>
           </div>
           
-        </form>
+        </form> 
       </div>
     </div>
   )
