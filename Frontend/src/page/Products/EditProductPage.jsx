@@ -30,6 +30,7 @@ function EditProductPage() {
     image3: '',
     image4: '',
     specification: '',
+    parts:[],
   });
 
   let storedToken = localStorage.getItem('token');
@@ -327,13 +328,14 @@ function EditProductPage() {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="productPDF" className="block text-sm font-medium text-gray-600">
+            <label htmlFor="pdf_file" className="block text-sm font-medium text-gray-600">
               Product PDF
             </label>
             <input
               type="file"
-              id="productPDF"
-              name="productPDF"
+              id="pdf_file"
+              name="pdf_file"
+              accept=".pdf"
               value={productDetails.pdf_file}
               onChange={handleInputChange}
               className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
@@ -402,6 +404,17 @@ function EditProductPage() {
               onChange={handleInputChange}
               className="w-full p-3 mt-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-500"
             />
+          </div>
+          {/* Display product parts */}
+          <div className='mb-4'>
+            <label htmlFor="productParts" className='block text-sm font-medium text-gray-600'>
+              Product Parts
+            </label>
+            <ul>
+              {productDetails.parts.map((part,index)=> (
+                <li key = {index}>{part.name}</li>
+              ))}
+            </ul>
           </div>
 
           <button
