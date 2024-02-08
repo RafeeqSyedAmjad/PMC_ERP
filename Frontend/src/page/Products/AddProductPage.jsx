@@ -6,26 +6,27 @@ import { useNavigate } from "react-router-dom";
 function AddProductPage() {
   const navigate = useNavigate();
   const [productDetails, setProductDetails] = useState({
+    // id: "",
     name: "",
     vendor_name: "",
     brand: "",
     short_name: "",
-    quantity: "",
+    quantity: '', // Assuming quantity is always numeric
     category1: "",
     category2: "",
     category3: "",
     part_number: "",
-    unit_of_measure: "select", // Default value
+    unit_of_measure: "", // Default value
     price1: "",
     price2: "",
     price3: "",
     price4: "",
     price5: "",
-    origin: "select", // Default value
-    hazard: "select", // Default value
-    pdf_file: "",
+    origin: "", // Default value
+    hazard: "", // Default value
+    pdf_file: "", // Assuming pdf_file can be null or a file
     specification: "",
-    image1: "",
+    image1: "", // Assuming image can be null or a file
     image2: "",
     image3: "",
     image4: "",
@@ -47,7 +48,6 @@ function AddProductPage() {
     "price5",
     "origin",
     "hazard",
-    // "pdf_file", // PDF file is also required
   ];
 
   // Track validation status for each field
@@ -93,15 +93,31 @@ function AddProductPage() {
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
 
+    // Update Short Name and Part Number if the input is for Brand
+    if(name === "brand"){
+      const firstLetter = value.charAt(0);
+      setProductDetails((prevDetails)=> ({
+        ...prevDetails,
+        [name]:value,
+        short_name:firstLetter,
+        part_number: `${firstLetter}-`,
+      }))
+    }
+
     if (name === "unit_of_measure" && value === "set") {
       // Open the modal
       setIsSetModalOpen(true);
+      // Update unit of measure immediately to "set"
+      setProductDetails((prevDetails) => ({
+        ...prevDetails,
+        [name]: value,
+      }));
+    } else {
+      setProductDetails((prevDetails) => ({
+        ...prevDetails,
+        [name]: type === "file" ? files[0] : value,
+      }));
     }
-
-    setProductDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: type === "file" ? files[0] : value,
-    }));
 
     // Validate the field
     validateField(name, value);
@@ -114,16 +130,36 @@ function AddProductPage() {
     setFieldValidation((prevValidation) => ({ ...prevValidation, [name]: isValid }));
   };
 
-  const isFormValid = () => {
-    // Check if all required fields have non-empty values
-    return requiredFields.every((field) => productDetails[field].trim() !== "");
-  };
+  // const isFormValid = () => {
+  //   // Check if all required fields have non-empty values
+  //   return requiredFields.every((field) => {
+  //     const value = productDetails[field];
+  //     return typeof value === 'string' && value.trim() !== "";
+  //   });
+  // };
 
   let storedToken = localStorage.getItem('token');
 
 
   const handleAddProduct = () => {
-    if (isFormValid()) {
+    // Check if all required fields have non-empty values
+    const isFormValid = requiredFields.every((field) => {
+      const value = productDetails[field];
+      const isValid = typeof value === 'string' && value.trim() !== "";
+      // Update field validation state
+      setFieldValidation((prevValidation) => ({ ...prevValidation, [field]: isValid }));
+      return isValid;
+    });
+
+    // Additional check for quantity to be a valid integer
+    const isQuantityValid = /^\d+$/.test(productDetails.quantity); // Checks if quantity is a valid integer
+
+    if (!isQuantityValid) {
+      toast.error("Please enter a valid integer in the Quantity field.");
+      return; // Exit function early if quantity is not a valid integer
+    }
+
+    if (isFormValid) {
       // Prepare data for POST request
       const formData = new FormData();
 
@@ -158,10 +194,15 @@ function AddProductPage() {
           console.error("Error:", error);
         });
     } else {
-      // Show an indication for required fields that are not filled
-      toast.error("You need to fill all the required fields!");
+      // Show toast message for each required field that is not filled properly
+      requiredFields.forEach((field) => {
+        if (!fieldValidation[field]) {
+          toast.error(`Please fill the required field: ${field}`);
+        }
+      });
     }
   };
+
 
   const handleImageOptionClick = () => {
     setAddImageButtonClicked(true);
@@ -504,7 +545,7 @@ function AddProductPage() {
               ))}
             </div>
           )}
-          <div className="flex justify-between ">
+          <div className="flex justify-between">
             <button
               type="button"
               onClick={handleImageOptionClick}

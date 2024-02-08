@@ -4,6 +4,7 @@ import { CiViewBoard } from 'react-icons/ci';
 import { IoTrashBin } from 'react-icons/io5';
 import { FaRegEdit } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 function ProductsPage() {
     const [products, setProducts] = useState([]);
@@ -38,11 +39,15 @@ function ProductsPage() {
                     // Filter out the deleted product from the local state
                     const updatedProducts = products.filter((product) => product.id !== productId);
                     setProducts(updatedProducts); // Update the state with the new products array
+                    toast.success("Product Deleted Sucessfully")
                 } else {
-                    throw new Error('Failed to delete product');
+                    // throw new Error('Failed to delete product');
+                    toast.error("Failed to delete product")
+
                 }
             } catch (error) {
                 console.error('Error deleting product:', error);
+                toast.error("Failed to delete product")
             }
         }
     };
