@@ -1,5 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+// tailwind.config.js
+
+export default {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{js,jsx}",
@@ -105,5 +106,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")], // Add semicolon if needed
+  plugins: [], // No need to require anything
 };
