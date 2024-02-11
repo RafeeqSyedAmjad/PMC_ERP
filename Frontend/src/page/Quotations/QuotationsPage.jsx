@@ -91,8 +91,16 @@ function QuotationsPage() {
         return filteredQuotations;
     };
 
-    function previewQuotation(quotationId) {
-        window.open(`/quotations/deliverynote/${quotationId}`, '_blank');
+    function previewQuotation(quotationId,actionType) {
+        if(actionType === 'deliveryNote'){
+            window.open(`/quotations/deliverynote/${quotationId}`, '_blank');
+
+        }   
+        else if (actionType === 'preview') {
+            window.open(`/quotations/preview/${quotationId}`, '_blank');
+
+        }
+
     }
 
     const filteredQuotations = applyFilters();
@@ -305,10 +313,10 @@ function QuotationsPage() {
                                     <td className="px-6 py-3">{quotation.quotation_status}</td>
                                     {/* Implement Actions column here */}
                                     <td className="flex flex-col items-center justify-center px-6 py-3 space-y-2 sm:flex-row sm:items-center sm:justify-center sm:space-x-3">
-                                        <Link to={`/quotations/edit/${quotation.id}/`} className="text-blue-400" title='Edit Details'>
+                                        <Link to={`/quotations/edit/${quotation.quotation_id}/`} className="text-blue-400" title='Edit Details'>
                                             <FaRegEdit />
                                         </Link>
-                                        <button onClick={() => previewQuotation(quotation.sales_quotation_id)} title='Preview'>
+                                        <button onClick={() => previewQuotation(quotation.quotation_id,'preview')} title='Preview'>
                                            
                                             <CiViewBoard />
                                         </button>
@@ -354,7 +362,7 @@ function QuotationsPage() {
                                             </div>
                                         )}
 
-                                        <button onClick={() => previewQuotation(quotation.quotation_id)} className='' title='Delivery Note'>
+                                        <button onClick={() => previewQuotation(quotation.quotation_id,'deliveryNote')} className='' title='Delivery Note'>
                                             <VscPreview /> 
                                         </button>
                                     </td>
