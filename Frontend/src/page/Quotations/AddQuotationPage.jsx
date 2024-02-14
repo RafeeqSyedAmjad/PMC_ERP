@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 import header from '../../assets/header.png';
 import footer from '../../assets/footer.jpg';
+import service from '../../assets/service.jpg';
+
 
 
 function AddQuotationPage() {
@@ -50,7 +52,24 @@ function AddQuotationPage() {
     const [isDocumentModalOpen, setDocumentModalOpen] = useState(false);
     const [selectedDocumentType, setSelectedDocumentType] = useState(null);
 
+    // merged service and product table data
+    const mergedData = [...serviceData, ...tableData];
+    console.log('Merged Data:', mergedData);
+
     let storedToken = localStorage.getItem('token');
+
+    const currentDate = new Date();
+
+    // Set the options for formatting the date to Saudi Arabia's locale
+    const options = {
+        timeZone: 'Asia/Riyadh',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric'
+    };
+
+    // Get the current date in Saudi Arabia
+    const saudiArabiaDate = currentDate.toLocaleString('en-US', options);
 
     useEffect(() => {
         // Fetch services from the API
@@ -92,6 +111,7 @@ function AddQuotationPage() {
         const customerId = event.target.value;
         const selectedCustomer = customers.find(customer => String(customer.id) === customerId);
         setSelectedCustomer(selectedCustomer);
+        console.log(selectedCustomer)
     };
 
     const searchProducts = () => {
@@ -219,7 +239,21 @@ function AddQuotationPage() {
 
     // Services 
 
+    
+
     const updateServiceTotals = () => {
+
+        // Check if there are any rows in the service table
+        if (serviceData.length === 0) {
+            // If no rows, set all service-related totals to 0
+            setServiceTotalPrice(0);
+            setServiceTotalDiscount(0);
+            setServiceVatAmount(0);
+            setServicePriceWithVat(0);
+            return; // Exit the function early
+        }
+
+        
 
         console.log('is this running')
         let totalServicePrice = 0;
@@ -314,6 +348,8 @@ function AddQuotationPage() {
         updateServiceTotals();
     };
 
+    
+
 
     // Get total
     const updateQuotationTotals = () => {
@@ -356,7 +392,7 @@ function AddQuotationPage() {
     useEffect(() => {
         // Update grand total when additional discount changes
         updateQuotationTotals();
-    }, [additionalDiscount]);
+    });
 
 
     // Use a callback function to ensure that the state is updated before calculations
@@ -415,6 +451,7 @@ function AddQuotationPage() {
 
 
 
+
     return (
         <div>
             <Navbar />
@@ -459,6 +496,7 @@ function AddQuotationPage() {
                         )}
                     </div>
                 </div>
+
 
                 <div className="mb-4">
                     <h2 className="mb-2 text-lg font-semibold">Product Information</h2>
@@ -566,7 +604,7 @@ function AddQuotationPage() {
                                             <TableCell>
                                                 <button
                                                     onClick={() => handleDeleteRow(index)}
-                                                    className="text-red-600 transition duration-300 hover:text-red-800 "
+                                                    className="text-red-600 transition duration-300 hover:text-red-800"
                                                 >
                                                     <FaRegTrashAlt />
                                                 </button>
@@ -711,8 +749,6 @@ function AddQuotationPage() {
                         </div>
                     </div>
 
-
-
                 </div>
 
                 {/* Get Total Button */}
@@ -809,7 +845,7 @@ function AddQuotationPage() {
                                     <label htmlFor="pdf">PDF</label>
                                 </div>
 
-                                <div className="flex items-center mb-4">
+                                {/* <div className="flex items-center mb-4">
                                     <input
                                         type="radio"
                                         id="doc"
@@ -820,9 +856,9 @@ function AddQuotationPage() {
                                         className="mr-2"
                                     />
                                     <label htmlFor="doc">DOC</label>
-                                </div>
+                                </div> */}
 
-                                <div className="flex items-center">
+                                {/* <div className="flex items-center">
                                     <input
                                         type="radio"
                                         id="excel"
@@ -833,7 +869,7 @@ function AddQuotationPage() {
                                         className="mr-2"
                                     />
                                     <label htmlFor="excel">Xcel</label>
-                                </div>
+                                </div> */}
 
                                 {/* Send Email Button */}
 
@@ -856,168 +892,267 @@ function AddQuotationPage() {
 
                 </div>
 
-
-
-
-
-                {/* Preview Modal */}
-
-                <div
-                    id="default-modal"
-                    tabIndex="-1"
-                    aria-hidden={!isPreviewModalOpen} // Hide modal when not open
-                    className={`${isPreviewModalOpen ? 'fixed' : 'hidden'
-                        } overflow-y-auto overflow-x-hidden flex z-50 justify-center items-center w-full h-full md:w-full md:inset-0 md:h-[calc(100%-1rem)] max-h-full`}
-                >
-                    <div className="relative w-full max-w-2xl max-h-full p-4">
-                        {/* <!-- Modal content --> */}
-                        <div className="relative bg-white rounded-lg shadow">
-                            {/* <!-- Modal header --> */}
-                            <div className="flex items-center justify-between p-4 border-b rounded-t md:p-5 ">
-                                <h3 className="text-xl font-semibold text-black">
-                                    Sales Quotation
-                                </h3>
-                                <button type="button" className="inline-flex items-center justify-center text-sm text-gray-400 bg-transparent rounded-lg hover:text-gray-900 ms-auto dark:hover:text-white" data-modal-hide="default-modal" onClick={closePreviewModal}>
-                                    <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                                    </svg>
-                                    <span className="sr-only">Close modal</span>
-                                </button>
-                            </div>
-                            {/* <!-- Modal body --> */}
-                            <div className='flex flex-col items-center justify-center'>
-
-                                <div className="logo">
-                                    <img src={header} width="100%" height="100%" alt="PMC" />
-                                </div>
-
-                                <div className='flex flex-col items-center mt-3'>
-                                    <h3 className="font-bold">SALES QUOTATION</h3>
-
-                                    <h1 className='mt-3 text-xs font-bold'>Contact No: </h1>
-                                </div>
-                            </div>
-                            <div className="flex justify-between mt-2 text-xs font-bold">
-                                <div className="flex flex-col ml-4">
-                                    <span>SQ No:</span>
-                                    {/* Add the variable or text for SQ No here */}
-                                    <span>Customer Code:</span>
-                                    {/* Add the variable or text for Customer Code here */}
-                                    <span>Customer Name:</span>
-                                    {/* Add the variable or text for Customer Name here */}
-                                    <span>Contact Person:</span>
-                                    {/* Add the variable or text for Contact Person here */}
-                                    <span>Email Address:</span>
-                                    {/* Add the variable or text for Email Address here */}
-                                </div>
-
-                                <div className="flex flex-col mr-4">
-                                    <span>Type QUOTATION1 Page 1:</span>
-                                    {/* Add the variable or text for Type QUOTATION1 Page 1 here */}
-                                    <span>Sales Quotation Date:</span>
-                                    {/* Add the variable or text for Sales Quotation Date here */}
-                                    <span>Salesman:</span>
-                                    {/* Add the variable or text for Salesman here */}
-                                    <span>SO Date:</span>
-                                    {/* Add the variable or text for SO Date here */}
-                                    <span>Customer Ref:</span>
-                                    {/* Add the variable or text for Customer Ref here */}
-                                </div>
-                            </div>
-
-                            {/* Table with 5 columns and sub-columns */}
-                            <div className="mt-6">
-                                <table className="w-full text-xs">
-                                    <thead>
-                                        <tr>
-                                            <th className="border border-black">No</th>
-                                            <th className="border border-black">Items Price</th>
-                                            <th className="border border-black">Items Name</th>
-                                            <th className="border border-black">QTY</th>
-                                            <th className="border border-black">
-                                                Price (SAR)
-                                                <div className="flex justify-between mt-2">
-                                                    <span>Unit Price</span>
-                                                    <span>%</span>
-                                                    <span>Value</span>
-                                                </div>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    {/* Add table body here with actual data */}
-                                    <tbody>
-                                        <tr>
-                                            {/* Add data for each column */}
-                                        </tr>
-                                        {/* Add more rows as needed */}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Additional section for Total, Discount, Net, VAT, and Total + VAT in table format */}
-                            <div className="mt-6">
-                                <table className="w-[40%] text-xs">
-                                    <tbody>
-                                        <tr>
-                                            <td className="border border-black">Total:</td>
-                                            {/* Add the variable or text for Total here */}
-                                        </tr>
-                                        <tr>
-                                            <td className="border border-black">Discount:</td>
-                                            {/* Add the variable or text for Discount here */}
-                                        </tr>
-                                        <tr>
-                                            <td className="border border-black">Net:</td>
-                                            {/* Add the variable or text for Net here */}
-                                        </tr>
-                                        <tr>
-                                            <td className="border border-black">VAT 15%:</td>
-                                            {/* Add the variable or text for VAT 15% here */}
-                                        </tr>
-                                        <tr>
-                                            <td className="border border-black">Total + VAT:</td>
-                                            {/* Add the variable or text for Total + VAT here */}
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-
-
-                            {/* Terms and Conditions */}
-                            <hr className="h-px my-6 bg-black border-0"></hr>
-                            <div className="mt-4 space-y-5 text-sm">
-                                <h6 className="font-bold">TERMS AND CONDITIONS:</h6>
-                                <p><strong>Payment:</strong> Delivery Against Official PO</p>
-                                <p><strong>Warranty:</strong> One Year Factory Warranty</p>
-                                <p><strong>Validity:</strong> 30 Days</p>
-                                <p><strong>Delivery:</strong> 30 Days</p>
-                                <p><strong>Other:</strong> Installation Charges Not Included in the Package</p>
-                                <p className="mt-2 font-bold"><em>REFUSAL TO RECEIVE PMC FINAL DELIVERY DUE TO UNAVAILABILITY OF THE PROJECT SITE WILL ONLY BE TOLERATED AS LONG THE CUSTOMER WILL PAY THE COMPLETE AMOUNT OF THE P.O. WITHIN 15 DAYS AFTER THEIR DELIVERY REFUSAL.</em></p>
-                            </div>
-                            {/* Prepared By and Received By */}
-                            <div className="flex flex-col mt-4 text-base font-bold">
-                                <div className="flex flex-col">
-                                    <span>Prepared By:</span>
-                                    {/* Add the variable or text for Prepared By here */}
-                                </div>
-                                <div className="flex flex-col">
-                                    <span>Received By:</span>
-                                    {/* Add the variable or text for Received By here */}
-                                </div>
-                            </div>
-                            {/* <!-- Modal footer --> */}
-                            <div className="flex items-center">
-                                {/* Footer content goes here */}
-                                <img src={footer} width="100%" height="100%" alt="PMC" />
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-
             </div>
 
+            {/* Preview Modal */}
+
+            <div
+                id="default-modal"
+                tabIndex="-1"
+                aria-hidden={!isPreviewModalOpen} // Hide modal when not open
+                className={`${isPreviewModalOpen ? 'fixed' : 'hidden'
+                    } overflow-y-auto overflow-x-hidden flex z-50 justify-center items-center w-full h-full md:w-full md:inset-0 md:h-[calc(100%-1rem)] max-h-full`}
+            >
+                <div className="relative max-h-full p-4 md:w-full md:max-w-6xl">
+                    {/* <!-- Modal content --> */}
+                    <div className="relative bg-white rounded-lg shadow">
+                        {/* <!-- Modal header --> */}
+                        <div className="flex items-center justify-between p-4 border-b rounded-t md:p-5 ">
+                            <h3 className="text-xl font-semibold text-black">
+                                Sales Quotation
+                            </h3>
+                            <button type="button" className="inline-flex items-center justify-center text-sm text-gray-400 bg-transparent rounded-lg hover:text-gray-900 ms-auto dark:hover:text-white" data-modal-hide="default-modal" onClick={closePreviewModal}>
+                                <svg className="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                </svg>
+                                <span className="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        {/* <!-- Modal body --> */}
+                        <div className='flex flex-col items-center justify-center'>
+
+                            <div className="logo">
+                                <img src={header} width="100%" height="100%" alt="PMC" />
+                            </div>
+
+                            <div className='flex flex-col items-center mt-3'>
+                                <h3 className="text-xl font-bold">SALES QUOTATION</h3>
+
+                            </div>
+                        </div>
+                        <div className="flex justify-between mt-2 text-xs font-bold">
+                            {selectedCustomer && (
+                                
+                                <div className="flex flex-wrap justify-between mt-8 ml-6">
+                                    <div className="w-full md:w-[33.33%] md:text-xl font-bold">
+                                        {/* <p>SQ NO : {quotationData.sales_quotation_id}</p> */}
+                                        <p>Customer Code : {selectedCustomer?.id}</p>
+                                        <p>Customer Name : {selectedCustomer?.customerName}</p>
+                                        <p> Contact Person : {selectedCustomer?.customerPhone}</p>
+                                        <p> Email Address : {selectedCustomer?.customerEmail}</p>
+                                    </div>
+                                    <div className="w-full mt-4 md:w-[33.33%] md:mt-0">
+                                        <p className="font-bold md:text-xl"> Contact No : {selectedCustomer.customerPhone} </p>
+                                    </div>
+                                    <div className="w-full mt-4 font-bold md:text-xl md:w-[33.33%] md:mt-0">
+                                        <p>Type QUOTATION1 Page 1: First</p>
+                                        <p> Sales Quotation Date : {saudiArabiaDate}</p>
+                                        <p>Salesman : {selectedCustomer?.customerName}</p>
+                                        <p>SO Date : {saudiArabiaDate}</p>
+                                        <p>Customer Ref : {selectedCustomer?.customerName}</p>
+                                    </div>
+                                    <h1 className="mt-4 text-xl font-bold">Remark</h1>
+                                </div>
+                            )}
+                            
+                        </div>
+
+                        {/* Table */}
+                        <div className="relative mt-3 ml-4 mr-4 overflow-x-auto ">
+                            <table className="w-[100%] text-sm text-center text-black border-2 border-black ">
+                                <thead className="box-border text-xl text-black border-2 border-black dark:text-black">
+                                    <tr>
+                                        <th scope="col" className="px-6 py-3 border-2 border-black">
+                                            No
+                                        </th>
+                                        <th scope="col" className="px-6 py-3 border-2 border-black">
+                                            Item Picture
+                                        </th>
+                                        <th scope="col" className="px-6 py-3 border-2 border-black">
+                                            Item Name
+                                        </th>
+                                        <th scope="col" className="px-6 py-3 border-2 border-black">
+                                            QTY
+                                        </th>
+                                        <th scope="col" colSpan="3" className="border-2 border-black w-[200px]">
+                                            Price (SAR)
+
+                                        </th>
+
+                                    </tr>
+
+                                    <tr className="">
+                                        <th>
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <th scope="col" className="border-none ">
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <th scope="col" className="border-2 border-black px-[50px] ">
+                                            Unit price
+                                        </th>
+                                        <th scope="col" className="border-black w-[50px] border-2 px-[50px]">
+                                            %
+                                        </th>
+                                        <th scope="col" className=" border-2 w-[100px] px-[50px] border-black">
+                                            Value
+                                        </th>
+                                    </tr>
+
+
+                                </thead>
+                                <tbody>
+                                    {mergedData.map((data, index) => (
+                                        <tr key={index} className="text-xl border-2 border-b border-black">
+                                            {data.serviceType ? (
+                                                // Render service data
+                                                <>
+                                                    <td className="text-black border-2 border-black">-</td> {/* Placeholder for index */}
+                                                    <td className="px-6 text-black border-2 border-black"><img src={service} className="w-[80px] h-[80px]"/></td>
+                                                    <td className="text-black border-2 border-black">{data.description}</td>
+                                                    <td className="text-black border-2 border-black">{data.time}</td> 
+                                                    <td className="text-black border-2 border-black">{data.total}</td>
+                                                    <td className="px-6 text-black border-2 border-black">{data.discount}</td>
+                                                    <td className="px-6 text-black border-2 border-black">{data.total}</td>
+                                                </>
+                                            ) : (
+                                                // Render product data
+                                                <>
+                                                    <td className="text-black border-2 border-black">{index + 1}</td>
+                                                    <td className="px-6 text-black border-2 border-black"><img src={data.image1} className="w-[80px] h-[80px]" /></td>
+                                                    <td className="text-black border-2 border-black py-">{data.name}</td>
+                                                    <td className="text-black border-2 border-black">{data.quantity}</td>
+                                                    <td className="text-black border-2 border-black">{data.price1}</td>
+                                                    <td className="px-6 text-black border-2 border-black">{data.discount}</td>
+                                                    <td className="px-6 text-black border-2 border-black">{data.total}</td>
+                                                </>
+                                            )}
+                                        </tr>
+                                    ))}
+                                    
+                                        {/* <tr key={index} className="text-xl border-2 border-b border-black">
+                                            <td className="text-black border-2 border-black ">{index + 1}</td>
+                                            <td className="px-6 text-black border-2 border-black "><img src={product.qimage} className="w-[100px] h-[100px]" /></td>
+                                            <td className="text-black border-2 border-black py-">{product.qproduct_name}</td>
+                                            <td className="text-black border-2 border-black "> {product.qproduct_quantity}</td>
+
+                                            <td className="text-black border-2 border-black">{product.qproduct_unit_price}</td>
+                                            <td className="px-6 text-black border-2 border-black">{product.qproduct_discount}</td>
+                                            <td className="px-6 text-black border-2 border-black">{product.qproduct_total}</td>
+                                        </tr> */}
+                                
+
+                                    
+                                    <tr className="text-xl">
+                                        <th>
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <th scope="col" className="border-none ">
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <td className="border-2 border-black" colSpan="2">
+                                            <strong>Total</strong>
+                                        </td>
+                                        <td className="border-2 border-black">{grandTotalPrice.toFixed(2)}</td>
+                                    </tr>
+                                    <tr className="text-xl">
+                                        <th>
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <th scope="col" className="border-none ">
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <td className="border-2 border-black" colSpan="2">
+                                            <strong>Discount</strong>
+                                        </td>
+                                        <td className="border-2 border-black">{(serviceTotalDiscount + calculateTotalDiscountAmount()).toFixed(2)}</td>
+                                    </tr>
+                                    <tr className="text-xl">
+                                        <th>
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <th scope="col" className="border-none ">
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <td className="border-2 border-black" colSpan="2">
+                                            <strong>Net</strong>
+                                        </td>
+                                        <td className="border-2 border-black">{grandTotalPrice.toFixed(2)}</td>
+                                    </tr>
+                                    <tr className="text-xl">
+                                        <th>
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <th scope="col" className="border-none ">
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <td className="border-2 border-black" colSpan="2">
+                                            <strong>Vat 15%</strong>
+                                        </td>
+                                        <td className="border-2 border-black">{grandTotalVatAmount.toFixed(2)}</td>
+                                    </tr>
+
+                                    <tr className="text-xl">
+                                        <th>
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <th scope="col" className="border-none ">
+                                        </th>
+                                        <th scope="col" className="border-none">
+                                        </th>
+                                        <td className="border-2 border-black" colSpan="2">
+                                            <strong>Total + Vat</strong>
+                                        </td>
+                                        <td className="border-2 border-black">{grandTotalPriceWithVat.toFixed(2)}</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        {/* Terms and Conditions */}
+                        <hr className="h-px my-6 bg-black border-0"></hr>
+                        <div className="mt-4 ml-4 space-y-5 text-sm">
+                            <h6 className="font-bold">TERMS AND CONDITIONS:</h6>
+                            <p><strong>Payment:</strong> Delivery Against Official PO</p>
+                            <p><strong>Warranty:</strong> One Year Factory Warranty</p>
+                            <p><strong>Validity:</strong> 30 Days</p>
+                            <p><strong>Delivery:</strong> 30 Days</p>
+                            <p><strong>Other:</strong> Installation Charges Not Included in the Package</p>
+                            <p className="mt-2 font-bold"><em>REFUSAL TO RECEIVE PMC FINAL DELIVERY DUE TO UNAVAILABILITY OF THE PROJECT SITE WILL ONLY BE TOLERATED AS LONG THE CUSTOMER WILL PAY THE COMPLETE AMOUNT OF THE P.O. WITHIN 15 DAYS AFTER THEIR DELIVERY REFUSAL.</em></p>
+                        </div>
+                        {/* Prepared By and Received By */}
+                        <div className="flex flex-col mt-4 ml-4 text-base font-bold">
+                            <div className="flex flex-col">
+                                <span>Prepared By:</span>
+                                {/* Add the variable or text for Prepared By here */}
+                            </div>
+                            <div className="flex flex-col">
+                                <span>Received By:</span>
+                                {/* Add the variable or text for Received By here */}
+                            </div>
+                        </div>
+                        {/* <!-- Modal footer --> */}
+                        <div className="flex items-center">
+                            {/* Footer content goes here */}
+                            <img src={footer} width="100%" height="100%" alt="PMC" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     );
 }
