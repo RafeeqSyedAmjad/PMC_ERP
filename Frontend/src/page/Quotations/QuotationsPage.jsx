@@ -22,6 +22,10 @@ function QuotationsPage() {
     const [currentQuotationId, setCurrentQuotationId] = useState(null);
     const [currentCustomerId, setCurrentCustomerId] = useState(null);
 
+    const [selectedFile, setSelectedFile] = useState(null);
+    
+    const [loading, setLoading] = useState(false);
+
     
     const openModal = (quotationId, customerId) => {
         setShowModal(true);
@@ -99,6 +103,9 @@ function QuotationsPage() {
         else if (actionType === 'preview') {
             window.open(`/quotations/preview/${quotationId}`, '_blank');
 
+        }
+        else if (actionType === 'approve') {
+            ApproveInv(quotationId);
         }
 
     }
@@ -222,17 +229,21 @@ function QuotationsPage() {
         setQuotations(sortedQuotations);
     };
 
-    const handleFileUpload = async (event) => {
+
+    const handleFileChange = (event) => {
+        setSelectedFile(event.target.files[0]);
+    };
+
+    const handleFileUpload = async () => {
         try {
-            if (!event.target.files || event.target.files.length === 0) {
+            if (!selectedFile) {
                 console.error('No file selected');
                 toast.error('Please select a file');
                 return;
             }
 
-            const file = event.target.files[0];
             const formData = new FormData();
-            formData.append('po_file', file);
+            formData.append('po_file', selectedFile);
             formData.append('customer', currentCustomerId);
             formData.append('quotation', currentQuotationId);
 
@@ -270,8 +281,163 @@ function QuotationsPage() {
 
 
 
+    async function ApproveInv(quotationId) {
+        
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+
+            // Fetch quotation details
+            const quoteResponse = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/quotation_calculations/${quotationId}/`,{
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            if (!quoteResponse.ok) {
+                throw new Error('Failed to fetch quotation details.');
+            }
+            const quote = await quoteResponse.json();
+
+            // Fetch customer details
+            const customerResponse = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${quote.customer}/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            });
+            if (!customerResponse.ok) {
+                throw new Error('Failed to fetch customer details.');
+            }
+            const customer = await customerResponse.json();
+
+            // Your JSON data
+            var jsonData = {
+                "model1": {
+                    "terms": "Net 30",
+                    "sales_man": "PMC",
+                    "customer_ref": customer.customerName,
+                    "customer_id": customer.id,
+                    "customer_name": customer.customerName,
+                    "customer_address": customer.customerAddress,
+                    "customer_city": customer.customerAddress,
+                    "customer_contact_name": customer.customerName,
+                    "customer_contact_tel": customer.customerPhone,
+                    "customer_postal_code": "12345",
+                    "customer_vat_number": customer.customerVat,
+                    "seller_id": quotationId,
+                    "seller_name": "PMC",
+                    "seller_address": "296, Al Faisaliyyah, Jeddah 21441, Saudi Arabia",
+                    "seller_city": "Jeddah",
+                    "seller_contact_name": "Mr. Javed",
+                    "seller_contact_tel": "+966503885614",
+                    "seller_postal_code": "21441",
+                    "seller_vat_number": "0987654321",
+                    "seller_IBAN": "US1234567890",
+                    "line_item": false
+                },
+                "model2": [
+                    // {
+                    //     "item_code": "1",
+                    //     "item_name": "Bumper",
+                    //     "pack": "1",
+                    //     "quantity": "2",
+                    //     "unit_price": "400",
+                    //     "discount": "0",
+                    // "item_sub_total_including_vat": "500"
+                    // }
+                ],
+                "model3": {
+                    "total_excluding_vat": quote.qtotal,
+                    "total_discount": quote.qdiscount,
+                    "net_excluding_VAT": quote.qtotal,
+                    "total_vat_15perc": quote.qvat_15perc,
+                    "net_amount": quote.qtotal_including_vat,
+                    "total_amount_due": "0",
+                    "remarks": "Some remarks"
+                }
+            }
+
+            quote.products.forEach(function (product) {
+                jsonData.model2.push({
+                    "item_code": product.qproduct_id,
+                    "item_name": product.qproduct_name,
+                    "pack": "1",
+                    "quantity": product.qproduct_quantity,
+                    "unit_price": product.qproduct_unit_price,
+                    "discount": product.qproduct_discounted_Amount,
+                    "item_sub_total_including_vat": product.qproduct_total
+                })
+            })
+            quote.services.forEach(function (service) {
+                jsonData.model2.push({
+                    "item_code": service.qservice_id,
+                    "item_name": service.qservice_type_of_service,
+                    "pack": "1",
+                    "quantity": service.qservice_quantity,
+                    "unit_price": service.qservice_unit_price,
+                    "discount": service.qproduct_discounted_Amount,
+                    "item_sub_total_including_vat": service.qservice_total
+                })
+            })
+
+            // Post JSON data to create invoice
+            const invoiceResponse = await fetch("https://invoiceapi-uat.smaftco.com/post-data2/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(jsonData),
+            });
+            if (!invoiceResponse.ok) {
+                throw new Error('Failed to create invoice.');
+            }
+            const data = await invoiceResponse.json();
+
+            // Update quotation status
+            await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/quotation_calculations/${quote.quotation_id}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    "quotation_status": "Invoice Created"
+                }),
+            });
+
+            // Create invoice record
+            await fetch('https://pmcsaudi-uat.smaftco.com:3083/invoices/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    "customer": quote.customer,
+                    "quotation": quote.quotation_id,
+                    "pdf_link": data
+                }),
+            });
+
+            // Open PDF link in a new tab
+            window.open(data, '_blank');
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
+
     return (
         <div>
+            {loading && (
+                <div className = "fixed top-0 left-0 z-50 flex items-center justify-center w-full h-full bg-gray-900 bg-opacity-50">
+                    {/* <div className='loader'></div> */}
+                    <svg class='animate-spin' height="56" viewBox="0 0 24 24" width="56" xmlns="http://www.w3.org/2000/svg"><path d="M12 22c5.421 0 10-4.579 10-10h-2c0 4.337-3.663 8-8 8s-8-3.663-8-8c0-4.336 3.663-8 8-8V2C6.579 2 2 6.58 2 12c0 5.421 4.579 10 10 10z" /></svg>
+                </div>
+            )}
             <Navbar />
             <div className="container px-4 py-8 mx-auto overflow-x-auto">
                 <div className='mb-4'>
@@ -323,6 +489,7 @@ function QuotationsPage() {
                                         <button
                                             className="text-green-400"
                                             title='Approve'
+                                            onClick={()=> previewQuotation(quotation.quotation_id,'approve')} 
                                         >
                                             <CiViewTable />
                                         </button>
@@ -332,7 +499,7 @@ function QuotationsPage() {
                                         </button>
 
                                         {showModal && (
-                                            <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-transparent bg-opacity-50 shadow-md">
+                                            <div className="fixed inset-0 top-0 left-0 z-50 flex items-center justify-center overflow-auto bg-transparent bg-opacity-50 shadow-md">
                                                 <div className="p-8 bg-[#B4D4FF] rounded-lg">
                                                     <div className='flex justify-between mb-6'>
                                                         <h1 className="text-xl font-bold ">Add PO file</h1>
@@ -346,14 +513,13 @@ function QuotationsPage() {
                                                         type="file"
                                                         id="POFile"
                                                         // value={}
-                                                        // onChange={handleFileUpload}
-                                                        onChange={(event) => console.log(event)}
+                                                        onChange={handleFileChange}
                                                         className="w-full p-2 mb-4 border border-black rounded-md"
                                                     />
                                                     
                                                     
                                                     <button
-                                                        onClick={(event) => handleFileUpload(event)}
+                                                        onClick={handleFileUpload}
                                                         className="px-5 py-2 text-white bg-black rounded-lg"
                                                     >
                                                         Upload

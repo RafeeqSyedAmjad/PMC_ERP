@@ -45,6 +45,8 @@ export default function LoginPage() {
                 // Store the token in both Recoil state and localStorage
                 setToken(data.Token.access);
                 localStorage.setItem('token',data.Token.access);
+                // Store the user's email in localStorage
+                localStorage.setItem('userEmail', username);
                 setIsAuthenticated(true);
                 toast.success('SuccessFully logined');
                 Navigate('/');

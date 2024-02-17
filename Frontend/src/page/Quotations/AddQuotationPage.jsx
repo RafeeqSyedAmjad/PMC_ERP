@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Navbar } from '../../components/ComponentExport';
 import { FaRegTrashAlt, FaTimes } from 'react-icons/fa';
 import {
@@ -12,7 +12,7 @@ import {
 import header from '../../assets/header.png';
 import footer from '../../assets/footer.jpg';
 import service from '../../assets/service.jpg';
-
+import generatePDF from 'react-to-pdf';
 
 
 function AddQuotationPage() {
@@ -51,6 +51,11 @@ function AddQuotationPage() {
     //Send and Document Type
     const [isDocumentModalOpen, setDocumentModalOpen] = useState(false);
     const [selectedDocumentType, setSelectedDocumentType] = useState(null);
+
+    // Ref for the preview modal content
+    const targetRef = useRef();
+
+    
 
     // merged service and product table data
     const mergedData = [...serviceData, ...tableData];
@@ -238,8 +243,6 @@ function AddQuotationPage() {
 
 
     // Services 
-
-    
 
     const updateServiceTotals = () => {
 
@@ -437,12 +440,78 @@ function AddQuotationPage() {
         setSelectedDocumentType(type);
     };
 
+    
+    // Function to generate PDF and send it to the API
+    const handleGeneratePDF = async () => {
+        // Generate PDF using react-to-pdf
+
+         var QuotationId = 0;
+
+        try {
+            const pdfData = await generatePDF(targetRef.current, { filename: 'sales_quotation.pdf' });
+
+            // Extract the base64 data from the PDF data
+            const base64Data = pdfData.replace(/^data:application\/pdf;base64,/, "");
+
+            // Get the current user's email from local storage
+            const userEmail = localStorage.getItem('userEmail');
+
+            // Prepare the data to be sent to the API
+            const jsonData = {
+                pdf_file: base64Data,
+                customer_email: userEmail, // Assuming selectedCustomer contains the necessary data
+                quotation: QuotationId , // Update with your quotation ID if available
+                customer: customers.id, // Update with your customer ID if available
+            };
+
+            // Get the token from local storage
+            const token = localStorage.getItem('token');
+
+            // Send the PDF data to the API
+            const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/upload-pdf/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify(jsonData),
+            });
+
+            // Check if the request was successful
+            if (response.ok) {
+                // Show a success message
+                window.alert('PDF sent to the API successfully');
+            } else {
+                // Handle errors
+                console.error('Error sending PDF to the API:', response.statusText);
+                window.alert('Error sending PDF to the API. Please try again.');
+            }
+        } catch (error) {
+            // Handle errors that occurred during PDF generation
+            console.error('Error generating PDF:', error);
+            window.alert('Error generating PDF. Please try again.');
+        }
+    };
+
+
+
+
+
+
+    
     // Function to send the email based on the selected document type
     const sendEmailAndGeneratePdf = () => {
         // Add your logic for sending email based on selectedDocumentType
         // ...
 
+        // const element = document.getElementById('')
 
+        // Add your logic for sending email based on selectedDocumentType
+        // In this case, we're directly generating the PDF and sending it to the server
+        if (selectedDocumentType === 'PDF') {
+            handleGeneratePDF();
+        }
+        
         // Show a Windows popup with the desired message
         window.alert("Quotation created successfully");
         // Close the modal after sending email
@@ -881,9 +950,7 @@ function AddQuotationPage() {
                     {/* Save Button */}
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                        onClick={() => {
-                            // Add your logic for Save functionality
-                        }}
+                        onClick={handleSubmitClick}
                     >
                         <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                             Save
@@ -896,6 +963,16 @@ function AddQuotationPage() {
 
             {/* Preview Modal */}
 
+            {/* <SalesQuotationPDF
+                selectedCustomer={selectedCustomer}
+                saudiArabiaDate={saudiArabiaDate}
+                mergedData={mergedData}
+                grandTotalPrice={grandTotalPrice}
+                serviceTotalDiscount={serviceTotalDiscount}
+                calculateTotalDiscountAmount={calculateTotalDiscountAmount}
+                grandTotalVatAmount={grandTotalVatAmount}
+                grandTotalPriceWithVat={grandTotalPriceWithVat} /> */}
+
             <div
                 id="default-modal"
                 tabIndex="-1"
@@ -903,9 +980,10 @@ function AddQuotationPage() {
                 className={`${isPreviewModalOpen ? 'fixed' : 'hidden'
                     } overflow-y-auto overflow-x-hidden flex z-50 justify-center items-center w-full h-full md:w-full md:inset-0 md:h-[calc(100%-1rem)] max-h-full`}
             >
+                
                 <div className="relative max-h-full p-4 md:w-full md:max-w-6xl">
                     {/* <!-- Modal content --> */}
-                    <div className="relative bg-white rounded-lg shadow">
+                    <div className="relative bg-white rounded-lg shadow" ref={targetRef}>
                         {/* <!-- Modal header --> */}
                         <div className="flex items-center justify-between p-4 border-b rounded-t md:p-5 ">
                             <h3 className="text-xl font-semibold text-black">
@@ -1153,6 +1231,8 @@ function AddQuotationPage() {
 
                 </div>
             </div>
+
+            
         </div>
     );
 }
