@@ -1,6 +1,6 @@
 
 # PMC (An ERP based web application)
-This Application is used by SMAFTCO used for managing and integrating core business processes across various functions within an organization.
+This Application is used by SMAFTCO company it is used for managing and integrating core business processes across various functions within an organization.
 
 
 ## Run Locally
