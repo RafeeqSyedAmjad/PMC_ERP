@@ -30,6 +30,8 @@ function AddQuotationPage() {
     const [showServiceTable, setShowServiceTable] = useState(false);
     const [serviceData, setServiceData] = useState([]);
     const [serviceOptions, setServiceOptions] = useState([]);
+    // State variable to store the labor rate
+    const [laborRate, setLaborRate] = useState(0);
 
     // New state variables for service-related totals
     const [serviceTotalPrice, setServiceTotalPrice] = useState(0);
@@ -244,6 +246,21 @@ function AddQuotationPage() {
 
     // Services 
 
+    // Fetch labor rate from the API
+    useEffect(() => {
+        fetch('https://pmcsaudi-uat.smaftco.com:3083/labor-rates/1/', {
+            headers: {
+                'Authorization': `Bearer ${storedToken}`,
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Assuming your API returns the labor rate directly
+                setLaborRate(data.laborRate);
+            })
+            .catch(error => console.error('Error fetching labor rate:', error));
+    }, [storedToken]);
+
     const updateServiceTotals = () => {
 
         // Check if there are any rows in the service table
@@ -302,9 +319,10 @@ function AddQuotationPage() {
         const updatedServiceData = [...serviceData];
         updatedServiceData[index].time = value;
 
-        // Update the total based on time (1 time = 100.00)
+        // Update the total based on time and labor rate
         const time = parseFloat(value) || 0;
-        updatedServiceData[index].total = (time * 100.00).toFixed(2);
+        const total = (laborRate * time).toFixed(2); // Multiply by labor rate
+        updatedServiceData[index].total = total;
 
         setServiceData(updatedServiceData);
 
@@ -950,7 +968,7 @@ function AddQuotationPage() {
                     {/* Save Button */}
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                        onClick={handleSubmitClick}
+                        // onClick={handleSubmitClick}
                     >
                         <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                             Save
