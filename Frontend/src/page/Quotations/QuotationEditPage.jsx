@@ -13,7 +13,7 @@ import {
 import header from '../../assets/header.png';
 import footer from '../../assets/footer.jpg';
 import service from '../../assets/service.jpg';
-import generatePDF from 'react-to-pdf';
+import generatePdf from 'react-to-pdf';
 
 
 function QuotationEditPage() {
@@ -56,13 +56,12 @@ function QuotationEditPage() {
     const [selectedDocumentType, setSelectedDocumentType] = useState(null);
 
     // Ref for the preview modal content
-    const targetRef = useRef();
+    const componentRef = useRef();
 
     const storedToken = localStorage.getItem('token');
 
     // merged service and product table data
     const mergedData = [...serviceData, ...tableData];
-    console.log('Merged Data:', mergedData);
 
 
     const currentDate = new Date();
@@ -138,6 +137,8 @@ function QuotationEditPage() {
 
                 const customerId = quotationData.customer;
 
+                console.log(customerId)
+
                 const customerResponse = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/customers/${customerId}/`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -151,19 +152,19 @@ function QuotationEditPage() {
                 const customerData = await customerResponse.json();
                 setCustomerData(customerData);
 
-                const productsResponse = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${customerId}/`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                // const productsResponse = await fetch(`https://pmcsaudi-uat.smaftco.com:3083/api/products/${customerId}/`, {
+                //     headers: {
+                //         'Authorization': `Bearer ${token}`
+                //     }
+                // });
 
-                if (!productsResponse.ok) {
-                    throw new Error('Failed to fetch products data');
-                }
+                // if (!productsResponse.ok) {
+                //     throw new Error('Failed to fetch products data');
+                // }
 
-                const productsData = await productsResponse.json();
-                setProducts(productsData);
-                console.log(productsData)
+                // const productsData = await productsResponse.json();
+                // setProducts(productsData);
+                // console.log(productsData)
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -496,7 +497,7 @@ function QuotationEditPage() {
     // Function to close the document modal
     const closeDocumentModal = () => {
         setDocumentModalOpen(false);
-    };
+        };
 
     // Function to handle document type selection
     const handleDocumentTypeSelect = (type) => {
@@ -506,12 +507,15 @@ function QuotationEditPage() {
 
     // Function to generate PDF and send it to the API
     const handleGeneratePDF = async () => {
-        // Generate PDF using react-to-pdf
-
-        var QuotationId = 0;
-
         try {
-            const pdfData = await generatePDF(targetRef.current, { filename: 'sales_quotation.pdf' });
+            // Log a message to indicate that PDF generation is starting
+            console.log('Generating PDF...');
+
+            // Generate PDF using react-to-pdf
+            const pdfData = await generatePdf(componentRef, { filename: 'sales_quotation.pdf' });
+
+            // Log the PDF data to check if it's available
+            console.log('PDF Data:', pdfData);
 
             // Extract the base64 data from the PDF data
             const base64Data = pdfData.replace(/^data:application\/pdf;base64,/, "");
@@ -523,7 +527,7 @@ function QuotationEditPage() {
             const jsonData = {
                 pdf_file: base64Data,
                 customer_email: userEmail, // Assuming selectedCustomer contains the necessary data
-                quotation: QuotationId, // Update with your quotation ID if available
+                quotation: quotationId, // Update with your quotation ID if available
                 customer: customerData.id, // Update with your customer ID if available
             };
 
@@ -557,12 +561,64 @@ function QuotationEditPage() {
     };
 
 
+    // // Function to generate PDF and send it to the API
+    // const handleGeneratePDF = async () => {
+    //     try {
+    //         // Log a message to indicate that PDF generation is starting
+    //         console.log('Generating PDF...');
+
+    //         // Generate PDF using react-to-pdf
+    //         const pdfBlob = await generatePdf(componentRef, { filename: 'sales_quotation.pdf', returnBlob: true });
+
+    //         // Create FormData object to send the PDF file
+    //         const formData = new FormData();
+    //         formData.append('pdf_file', pdfBlob, 'sales_quotation.pdf');
+
+    //         // Get the current user's email from local storage
+    //         const userEmail = localStorage.getItem('userEmail');
+
+    //         // Append other necessary data to the FormData object
+    //         formData.append('customer_email', userEmail);
+    //         formData.append('quotation', quotationId); // Update with your quotation ID if available
+    //         formData.append('customer', customerData.id); // Update with your customer ID if available
+
+    //         // Get the token from local storage
+    //         const token = localStorage.getItem('token');
+
+    //         // Send the FormData object to the API
+    //         const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/upload-pdf/', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //             },
+    //             body: formData,
+    //         });
+
+    //         // Check if the request was successful
+    //         if (response.ok) {
+    //             // Show a success message
+    //             window.alert('PDF sent to the API successfully');
+    //         } else {
+    //             // Handle errors
+    //             console.error('Error sending PDF to the API:', response.statusText);
+    //             window.alert('Error sending PDF to the API. Please try again.');
+    //         }
+    //     } catch (error) {
+    //         // Handle errors that occurred during PDF generation
+    //         console.error('Error generating PDF:', error);
+    //         window.alert('Error generating PDF. Please try again.');
+    //     }
+    // };
+
+
     // Function to send the email based on the selected document type
     const sendEmailAndGeneratePdf = () => {
         // Add your logic for sending email based on selectedDocumentType
         // ...
 
         // const element = document.getElementById('')
+
+        var changeStatus = true;
 
         // Add your logic for sending email based on selectedDocumentType
         // In this case, we're directly generating the PDF and sending it to the server
@@ -575,6 +631,103 @@ function QuotationEditPage() {
         // Close the modal after sending email
         closeDocumentModal();
     };
+
+
+    var unitPrice = 0;
+
+    const handleSubmitClick = async (changeStatus) => {
+
+        const token = localStorage.getItem('token');
+
+        
+        // Construct quotation object
+        let quotation = {
+            "products": [],
+            "services": [],
+            "qtotal": 0,
+            "qdiscount": 0,
+            "qadditional_discount": 0,
+            "qnet": 0,
+            "qvat_15perc": 0,
+            "qtotal_including_vat": 0,
+            "customer": 0,
+            "quotation_status": ""
+        };
+
+        // Construct quotation data for products
+        if (tableData.length > 0) {
+            quotation.products = tableData.map(product => ({
+                "qproduct_part_number": product.part_number,
+                "product": product.productid,
+                "qproduct_name": product.name,
+                "qproduct_unit_price": product.price1,
+                "qproduct_quantity": product.quantity,
+                "qproduct_discount": product.discount,
+                "qproduct_discounted_Amount": product.discountedAmount,
+                "qproduct_total": product.productTotal,
+                "qimage": product.productimage,
+                "customer": customerData.id // Assuming CustomerId is accessible in this component
+            }));
+        }
+
+        // Construct quotation data for services
+        if (serviceData.length > 0) {
+            quotation.services = serviceData.map(service => ({
+                "service": service.serviceId,
+                "qservice_type_of_service": service.serviceType,
+                "qservice_time": service.time,
+                "qservice_unit_price": 100, // Assuming unit price is fixed
+                "qservice_quantity": 0, // Assuming quantity is not applicable for services
+                "q_service_description": service.description,
+                "qservice_discount": service.discount,
+                "qservice_discounted_Amount": service.discountedAmount,
+                "qservice_total": service.total,
+                "customer": customerData.id // Assuming CustomerId is accessible in this component
+            }));
+        }
+
+        // Calculate total, discounts, and VAT
+        let productPrice = isNaN(parseFloat(calculateTotalPriceWithoutVat().toFixed(2).innerHTML)) ? 0 : parseFloat(calculateTotalPriceWithoutVat().toFixed(2).innerHTML);
+        let servicePrice = isNaN(parseFloat(serviceTotalPrice.toFixed(2).innerHTML)) ? 0 : parseFloat(serviceTotalPrice.toFixed(2).innerHTML);
+        let serviceDiscount = isNaN(parseFloat(serviceTotalDiscount.toFixed(2).innerHTML)) ? 0 : parseFloat(serviceTotalDiscount.toFixed(2).innerHTML);
+        let productDiscount = isNaN(parseFloat(calculateTotalDiscountAmount().toFixed(2).innerHTML)) ? 0 : parseFloat(calculateTotalDiscountAmount().toFixed(2).innerHTML);
+        let additionalDiscountValue = isNaN(parseFloat(additionalDiscount.valueOf)) ? 0 : parseFloat(additionalDiscount.valueOf);
+
+        quotation.qtotal = (productPrice + servicePrice).toFixed(2);
+        let additionalDiscountAmt = additionalDiscountValue / 100 * quotation.qtotal;
+        let amountAfterAdditionalDiscount = quotation.qtotal - additionalDiscountAmt;
+        quotation.qdiscount = (serviceDiscount + productDiscount).toFixed(2);
+        quotation.qadditional_discount = parseFloat(amountAfterAdditionalDiscount).toFixed(2);
+        quotation.qnet = (productPrice + servicePrice).toFixed(2);
+        quotation.qvat_15perc = (0.15 * parseFloat(amountAfterAdditionalDiscount)).toFixed(2);
+        quotation.qtotal_including_vat = (parseFloat(amountAfterAdditionalDiscount) + parseFloat(quotation.qvat_15perc)).toFixed(2);
+        quotation.customer = customerData.id; // Assuming CustomerId is accessible in this component
+        quotation.quotation_status = changeStatus ? "Quotation Sent" : "Quotation Created";
+
+        // Send quotation data to the API
+        try {
+            const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/quotation_calculations/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Assuming token is accessible in this component
+                },
+                body: JSON.stringify(quotation),
+            });
+
+            if (response.ok) {
+                alert('Quotation created successfully!');
+                // Redirect or perform other actions upon successful creation
+            } else {
+                const errors = await response.json();
+                alert('Error creating quotation: ' + JSON.stringify(errors));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error creating quotation. Please try again.');
+        }
+    };
+
 
 
     return (
@@ -978,7 +1131,7 @@ function QuotationEditPage() {
                     {/* Save Button */}
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                        // onClick={handleSubmitClick}
+                        onClick={handleSubmitClick}
                     >
                         <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                             Save
@@ -1011,7 +1164,7 @@ function QuotationEditPage() {
 
                 <div className="relative max-h-full p-4 md:w-full md:max-w-6xl">
                     {/* <!-- Modal content --> */}
-                    <div className="relative bg-white rounded-lg shadow" ref={targetRef}>
+                    <div className="relative bg-white rounded-lg shadow" ref={componentRef}>
                         {/* <!-- Modal header --> */}
                         <div className="flex items-center justify-between p-4 border-b rounded-t md:p-5 ">
                             <h3 className="text-xl font-semibold text-black">
