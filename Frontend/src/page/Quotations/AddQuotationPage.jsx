@@ -12,7 +12,7 @@ import {
 import header from '../../assets/header.png';
 import footer from '../../assets/footer.jpg';
 import service from '../../assets/service.jpg';
-import generatePDF from 'react-to-pdf';
+import generatePdf from 'react-to-pdf';
 
 
 function AddQuotationPage() {
@@ -55,13 +55,13 @@ function AddQuotationPage() {
     const [selectedDocumentType, setSelectedDocumentType] = useState(null);
 
     // Ref for the preview modal content
-    const targetRef = useRef();
+    const componentRef = useRef();
 
     
 
     // merged service and product table data
     const mergedData = [...serviceData, ...tableData];
-    console.log('Merged Data:', mergedData);
+    // console.log('Merged Data:', mergedData);
 
     let storedToken = localStorage.getItem('token');
 
@@ -112,6 +112,7 @@ function AddQuotationPage() {
     useEffect(() => {
         const defaultCustomer = customers.find(customer => customer.customerName === 'DEFAULT');
         setSelectedCustomer(defaultCustomer);
+        
     }, [customers]);
 
     const handleSelectCustomer = (event) => {
@@ -466,7 +467,7 @@ function AddQuotationPage() {
          var QuotationId = 0;
 
         try {
-            const pdfData = await generatePDF(targetRef.current, { filename: 'sales_quotation.pdf' });
+            const pdfData = await generatePdf(componentRef, { filename: 'sales_quotation.pdf' });
 
             // Extract the base64 data from the PDF data
             const base64Data = pdfData.replace(/^data:application\/pdf;base64,/, "");
@@ -479,7 +480,7 @@ function AddQuotationPage() {
                 pdf_file: base64Data,
                 customer_email: userEmail, // Assuming selectedCustomer contains the necessary data
                 quotation: QuotationId , // Update with your quotation ID if available
-                customer: customers.id, // Update with your customer ID if available
+                customer: selectedCustomer ? selectedCustomer.id : null // Use selectedCustomer.id if available
             };
 
             // Get the token from local storage
@@ -521,7 +522,7 @@ function AddQuotationPage() {
     const sendEmailAndGeneratePdf = () => {
         // Add your logic for sending email based on selectedDocumentType
         // ...
-
+        // var changeStatus = true;
         // const element = document.getElementById('')
 
         // Add your logic for sending email based on selectedDocumentType
@@ -535,6 +536,106 @@ function AddQuotationPage() {
         // Close the modal after sending email
         closeDocumentModal();
     };
+
+    // var unitPrice = 0;
+    
+    const handleSubmitClick = async (changeStatus) => {
+
+        const token = localStorage.getItem('token');
+
+
+        
+        // Construct quotation object
+        let quotation = {
+            "products": [],
+            "services": [],
+            "qtotal": 0,
+            "qdiscount": 0,
+            "qadditional_discount": 0,
+            "qnet": 0,
+            "qvat_15perc": 0,
+            "qtotal_including_vat": 0,
+            "customer": 0,
+            "quotation_status": ""
+        };
+
+        // Log the id of selectedCustomer
+        console.log("Selected Customer ID:", selectedCustomer ? selectedCustomer.id : null);
+
+        // Construct quotation data for products
+        if (tableData.length > 0) {
+            quotation.products = tableData.map(product => ({
+                "qproduct_part_number": product.part_number,
+                "product": product.productid,
+                "qproduct_name": product.name,
+                "qproduct_unit_price": product.price1,
+                "qproduct_quantity": product.quantity,
+                "qproduct_discount": product.discount,
+                "qproduct_discounted_Amount": product.discountedAmount,
+                "qproduct_total": product.productTotal,
+                "qimage": product.productimage,
+                "customer": selectedCustomer ? selectedCustomer.id : null // Use selectedCustomer.id if available
+            }));
+        }
+
+        // Construct quotation data for services
+        if (serviceData.length > 0) {
+            quotation.services = serviceData.map(service => ({
+                "service": service.serviceId,
+                "qservice_type_of_service": service.serviceType,
+                "qservice_time": service.time,
+                "qservice_unit_price": 100, // Assuming unit price is fixed
+                "qservice_quantity": 0, // Assuming quantity is not applicable for services
+                "q_service_description": service.description,
+                "qservice_discount": service.discount,
+                "qservice_discounted_Amount": service.discountedAmount,
+                "qservice_total": service.total,
+                "customer": selectedCustomer ? selectedCustomer.id : null // Use selectedCustomer.id if available
+            }));
+        }
+
+        // Calculate total, discounts, and VAT
+        let productPrice = isNaN(parseFloat(calculateTotalPriceWithoutVat().toFixed(2).innerHTML)) ? 0 : parseFloat(calculateTotalPriceWithoutVat().toFixed(2).innerHTML);
+        let servicePrice = isNaN(parseFloat(serviceTotalPrice.toFixed(2).innerHTML)) ? 0 : parseFloat(serviceTotalPrice.toFixed(2).innerHTML);
+        let serviceDiscount = isNaN(parseFloat(serviceTotalDiscount.toFixed(2).innerHTML)) ? 0 : parseFloat(serviceTotalDiscount.toFixed(2).innerHTML);
+        let productDiscount = isNaN(parseFloat(calculateTotalDiscountAmount().toFixed(2).innerHTML)) ? 0 : parseFloat(calculateTotalDiscountAmount().toFixed(2).innerHTML);
+        let additionalDiscountValue = isNaN(parseFloat(additionalDiscount.valueOf)) ? 0 : parseFloat(additionalDiscount.valueOf);
+
+        quotation.qtotal = (productPrice + servicePrice).toFixed(2);
+        let additionalDiscountAmt = additionalDiscountValue / 100 * quotation.qtotal;
+        let amountAfterAdditionalDiscount = quotation.qtotal - additionalDiscountAmt;
+        quotation.qdiscount = (serviceDiscount + productDiscount).toFixed(2);
+        quotation.qadditional_discount = parseFloat(amountAfterAdditionalDiscount).toFixed(2);
+        quotation.qnet = (productPrice + servicePrice).toFixed(2);
+        quotation.qvat_15perc = (0.15 * parseFloat(amountAfterAdditionalDiscount)).toFixed(2);
+        quotation.qtotal_including_vat = (parseFloat(amountAfterAdditionalDiscount) + parseFloat(quotation.qvat_15perc)).toFixed(2);
+        quotation.customer = selectedCustomer ? selectedCustomer.id : null // Use selectedCustomer.id if available
+        quotation.quotation_status = changeStatus ? "Quotation Sent" : "Quotation Created";
+
+        // Send quotation data to the API
+        try {
+            const response = await fetch('https://pmcsaudi-uat.smaftco.com:3083/api/quotation_calculations/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`, // Assuming token is accessible in this component
+                },
+                body: JSON.stringify(quotation),
+            });
+
+            if (response.ok) {
+                alert('Quotation created successfully!');
+                // Redirect or perform other actions upon successful creation
+            } else {
+                const errors = await response.json();
+                alert('Error creating quotation: ' + JSON.stringify(errors));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error creating quotation. Please try again.');
+        }
+    };
+
 
 
 
@@ -754,10 +855,11 @@ function AddQuotationPage() {
                                             <TableRow key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-gray-100'}>
                                                 <TableCell className="text-black">
                                                     <select
-                                                        value={service.serviceType}
+                                                        value={service.serviceType || 'Select Services'}
                                                         onChange={(e) => handleServiceTypeChange(index, e.target.value)}
                                                         className="w-full px-2 py-1 text-black border border-gray-300 rounded-md focus:outline-none focus:border-black"
                                                     >
+                                                        <option disabled>Select Services</option>
                                                         {serviceOptions.map((option, idx) => (
                                                             <option key={idx} value={option}>
                                                                 {option}
@@ -893,6 +995,7 @@ function AddQuotationPage() {
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
                         onClick={openDocumentModal}
+
                     >
                         <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                             Send
@@ -968,7 +1071,7 @@ function AddQuotationPage() {
                     {/* Save Button */}
                     <button
                         className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800"
-                        // onClick={handleSubmitClick}
+                        onClick={handleSubmitClick} // Pass false to indicate that the status is not changed
                     >
                         <span className="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
                             Save
@@ -1001,7 +1104,7 @@ function AddQuotationPage() {
                 
                 <div className="relative max-h-full p-4 md:w-full md:max-w-6xl">
                     {/* <!-- Modal content --> */}
-                    <div className="relative bg-white rounded-lg shadow" ref={targetRef}>
+                    <div className="relative bg-white rounded-lg shadow" ref={componentRef}>
                         {/* <!-- Modal header --> */}
                         <div className="flex items-center justify-between p-4 border-b rounded-t md:p-5 ">
                             <h3 className="text-xl font-semibold text-black">
